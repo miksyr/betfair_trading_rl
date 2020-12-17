@@ -1,0 +1,6 @@
+COUNTRY_CODES_OF_INTEREST = [
+    'GB', 'ES', 'FR', 'DE', 'IT', 'NL', 'PT', 'TR'
+]
+
+BETFAIR_MARKET_DEFINITION_TAG = 'marketDefinition'
+BETFAIR_RUNNER_CHANGE_TAG = 'rc'
