@@ -1,16 +1,19 @@
 from datetime import datetime
-from easy_postgres_engine import PostgresEngine
 
 from historical_odds_processing.datamodel.constants import BETFAIR_DATETIME_FORMAT
+from historical_odds_processing.store.postgres_query_engine import PostgresQueryEngine
 from historical_odds_processing.utils.text_processing import clean_text
 
 
-class PostgresInsertionEngine(PostgresEngine):
+class PostgresInsertionEngine(PostgresQueryEngine):
 
     def __init__(self, user: str, password: str, databaseName: str = 'betfair_odds_data', host: str = 'localhost', port: int = 5432):
         super().__init__(user=user, password=password, databaseName=databaseName, host=host, port=port)
 
     def insert_betting_type(self, bettingTypeName):
+        existingId = self.get_betting_type_index(bettingTypeName=bettingTypeName)
+        if existingId is not None:
+            return existingId
         return self.run_update_query(
             query="""
                 INSERT INTO
@@ -22,6 +25,9 @@ class PostgresInsertionEngine(PostgresEngine):
         )
 
     def insert_market_type(self, marketType):
+        existingId = self.get_market_type_index(marketType=marketType)
+        if existingId is not None:
+            return existingId
         return self.run_update_query(
             query="""
                 INSERT INTO
@@ -33,6 +39,9 @@ class PostgresInsertionEngine(PostgresEngine):
         )
 
     def insert_market_status(self, marketStatus):
+        existingId = self.get_market_status_index(marketStatus=marketStatus)
+        if existingId is not None:
+            return existingId
         return self.run_update_query(
             query="""
                 INSERT INTO
@@ -44,6 +53,9 @@ class PostgresInsertionEngine(PostgresEngine):
         )
 
     def insert_country_code(self, countryCode):
+        existingId = self.get_country_code_index(countryCode=countryCode)
+        if existingId is not None:
+            return existingId
         return self.run_update_query(
             query="""
                 INSERT INTO
@@ -55,6 +67,9 @@ class PostgresInsertionEngine(PostgresEngine):
         )
 
     def insert_timezone(self, timezone):
+        existingId = self.get_timezone_index(timezone=timezone)
+        if existingId is not None:
+            return existingId
         return self.run_update_query(
             query="""
                 INSERT INTO
@@ -65,7 +80,10 @@ class PostgresInsertionEngine(PostgresEngine):
             parameters={'timezone': clean_text(text=timezone)}
         )
 
-    def insert_market(self, betfairMarketId, eventName, eventId, eventTypeId, bettingType, marketType, countryCode, timezone):
+    def insert_market(self, betfairMarketId, eventName, eventId, eventTypeId, bettingTypeId, marketTypeId, countryCodeId, timezoneId):
+        existingId = self.get_market_id(eventId=eventId, marketTypeId=marketTypeId)
+        if existingId is not None:
+            return existingId
         return self.run_update_query(
             query="""
                 INSERT INTO
@@ -85,10 +103,10 @@ class PostgresInsertionEngine(PostgresEngine):
                 'eventName': clean_text(text=eventName),
                 'eventId': int(eventId),
                 'eventTypeId': int(eventTypeId),
-                'bettingType': int(bettingType),
-                'marketType': int(marketType),
-                'countryCode': int(countryCode),
-                'timezone': int(timezone)
+                'bettingType': int(bettingTypeId),
+                'marketType': int(marketTypeId),
+                'countryCode': int(countryCodeId),
+                'timezone': int(timezoneId)
             }
         )
 
@@ -142,6 +160,9 @@ class PostgresInsertionEngine(PostgresEngine):
         )
 
     def insert_runner(self, runnerName, betfairId, betfairSortPriority):
+        existingId = self.get_runner_index_by_betfair_id(betfairRunnerId=betfairId)
+        if existingId is not None:
+            return existingId
         return self.run_update_query(
             query="""
                 INSERT INTO
@@ -157,6 +178,9 @@ class PostgresInsertionEngine(PostgresEngine):
         )
 
     def insert_runner_status(self, runnerStatus):
+        existingId = self.get_runner_status_index(runnerStatus=runnerStatus)
+        if existingId is not None:
+            return existingId
         return self.run_update_query(
             query="""
                 INSERT INTO
