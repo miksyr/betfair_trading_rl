@@ -15,10 +15,10 @@ def create_table(postgresqlConnection):
         port=config['port'],
         host=config['host']
     )
-    for mappingTableSchema in ALL_MAPPING_SCHEMAS:
-        dbEngine.create_table(schema=mappingTableSchema)
-    for tableSchema in ALL_HISTORICAL_SCHEMAS:
-        dbEngine.create_table(schema=tableSchema)
+    for table in ALL_MAPPING_SCHEMAS:
+        dbEngine.create_table(schema=table.create_table_sql())
+    for table in ALL_HISTORICAL_SCHEMAS:
+        dbEngine.create_table(schema=table.create_table_sql())
 
 
 # Generate Postgresql class which shares the generated database
@@ -66,7 +66,7 @@ class TestPostgresEngine(TestCase):
         self.assertEqual(insertedId3, 1)
 
         fullTableResults = self.dbEngine.run_select_query(query='SELECT * FROM tbl_betfair_betting_types')
-        self.assertSequenceEqual(list(fullTableResults['bettingTypeName'].values), [BET_TYPE_1, BET_TYPE_2])
+        self.assertSequenceEqual(list(fullTableResults['betting_type_name'].values), [BET_TYPE_1, BET_TYPE_2])
 
         betTypeId1 = self.dbEngine.get_betting_type_index(bettingTypeName=BET_TYPE_1)
         self.assertEqual(betTypeId1, 1)
@@ -84,7 +84,7 @@ class TestPostgresEngine(TestCase):
         self.assertEqual(insertedId3, 1)
 
         fullTableResults = self.dbEngine.run_select_query(query='SELECT * FROM tbl_betfair_market_types')
-        self.assertSequenceEqual(list(fullTableResults['marketType'].values), [MARKET_TYPE_1, MARKET_TYPE_2])
+        self.assertSequenceEqual(list(fullTableResults['market_type'].values), [MARKET_TYPE_1, MARKET_TYPE_2])
 
         marketTypeId1 = self.dbEngine.get_market_type_index(marketType=MARKET_TYPE_1)
         self.assertEqual(marketTypeId1, 1)
@@ -101,8 +101,8 @@ class TestPostgresEngine(TestCase):
         insertedId3 = self.dbEngine.insert_market_status(marketStatus=MARKET_STATUS_1)
         self.assertEqual(insertedId3, 1)
 
-        fullTableResults = self.dbEngine.run_select_query(query='SELECT * FROM tbl_betfair_market_types')
-        self.assertSequenceEqual(list(fullTableResults['marketType'].values), [MARKET_STATUS_1, MARKET_STATUS_2])
+        fullTableResults = self.dbEngine.run_select_query(query='SELECT * FROM tbl_betfair_market_status')
+        self.assertSequenceEqual(list(fullTableResults['market_status_name'].values), [MARKET_STATUS_1, MARKET_STATUS_2])
 
         marketTypeId1 = self.dbEngine.get_market_status_index(marketStatus=MARKET_STATUS_1)
         self.assertEqual(marketTypeId1, 1)
