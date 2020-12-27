@@ -1,5 +1,5 @@
 import sys
-sys.path.append('../../../..')
+sys.path.append('../../../')
 import fire
 import logging
 import os
@@ -11,7 +11,7 @@ from historical_odds_processing.store.db_creation.postgres_insertion_engine impo
 
 def create_postgres_data_store():
     postgresEngine = PostgresInsertionEngine(
-        user=os.environ['POSTGRES_USER'],
+        user=os.environ['POSTGRES_USERNAME'],
         password=os.environ['POSTGRES_PASSWORD']
     )
     for tableSchema in ALL_MAPPING_SCHEMAS + ALL_HISTORICAL_SCHEMAS:

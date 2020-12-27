@@ -1,8 +1,7 @@
 import sys
 sys.path.append('../../')
 import fire
-
-from pathlib import Path
+import os
 
 from historical_odds_processing.datamodel.constants import COUNTRY_CODES_OF_INTEREST
 from historical_odds_processing.scripts.file_processing_steps.merge_all_id_feature_maps import merge_all_mappings
@@ -11,8 +10,8 @@ from historical_odds_processing.scripts.file_processing_steps.remap_all_id_featu
 from multiprocessing import cpu_count
 
 
-def main(inputDirectory, outputDirectory, maxNumThreads=None):
-    Path(outputDirectory).mkdir(parents=True, exist_ok=True)
+def main(inputDirectory, maxNumThreads=None):
+    outputDirectory = os.environ['POSTGRES_HISTORICAL_ODDS_DIR']
     numThreads = maxNumThreads or cpu_count()
     process_all_bz2_files(inputDirectory=inputDirectory, outputDirectory=outputDirectory, validCountryCodes=COUNTRY_CODES_OF_INTEREST, numThreads=numThreads)
     merge_all_mappings(outputDirectory=outputDirectory)

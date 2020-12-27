@@ -9,3 +9,6 @@ sudo docker run -d \
     --env POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
     --env POSTGRES_DB=betfair_odds_data \
     postgres
+
+#  TODO(Mike): run build DB script
+#  TODO(Mike): run add files to DB script

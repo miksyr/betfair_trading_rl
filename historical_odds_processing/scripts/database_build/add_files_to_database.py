@@ -1,6 +1,7 @@
 import sys
-sys.path.append('../../../../')
+sys.path.append('../../../')
 import fire
+import os
 import pandas as pd
 import pickle
 
@@ -13,15 +14,10 @@ from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema
 from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import ALL_MAPPING_SCHEMAS
 from historical_odds_processing.datamodel.data_store_schema.views import ALL_VIEWS
 from historical_odds_processing.store.db_creation.postgres_insertion_engine import PostgresInsertionEngine
-from historical_odds_processing.utils.paths import get_path
 from historical_odds_processing.utils.runner_identifier import break_runner_identifier_string
 
-REMAPPED_DIRECTORY = get_path(OUTPUT_DIRECTORY, 'remapped_files')
 
-insertionEngine = PostgresInsertionEngine()
-
-
-def copy_rows_into_table(table, orderedColumns, csvPaths):
+def copy_rows_into_table(insertionEngine, table, orderedColumns, csvPaths):
     tableName = table.tableName
     tableColumns = ', '.join(orderedColumns)
     for csvPath in tqdm(csvPaths, position=0, desc=f'inserting {table.tableName} CSVs'):
@@ -35,7 +31,7 @@ def copy_rows_into_table(table, orderedColumns, csvPaths):
         )
 
 
-def process_mapping(table, pickleMappingFile):
+def process_mapping(insertionEngine, table, pickleMappingFile):
     mapping = pickle.load(open(pickleMappingFile, 'rb'))
     if isinstance(table, Runners):
         tableMap = pd.DataFrame(data=mapping.items(), columns=['combined_runner_info', 'id'])
@@ -47,24 +43,22 @@ def process_mapping(table, pickleMappingFile):
         tableMap = pd.DataFrame(data=mapping.items(), columns=list(reversed(table.get_column_names())))
     csvOutputPath = f'{pickleMappingFile.parent}/{table.tableName}_final_mapping.csv'
     tableMap.sort_values('id').to_csv(csvOutputPath, index=False)
-    copy_rows_into_table(table=table, orderedColumns=list(tableMap.columns), csvPaths=[csvOutputPath])
+    copy_rows_into_table(insertionEngine=insertionEngine, table=table, orderedColumns=list(tableMap.columns), csvPaths=[csvOutputPath])
 
 
-def add_files_to_database():
-    # mapping files
+def add_files_to_database(insertionEngine, outputDirectory):
     for table in ALL_MAPPING_SCHEMAS:
-        mappingFilePath = list(Path(OUTPUT_DIRECTORY).glob(f'{table.savingIdentifier}*final_mapping.pkl'))
+        mappingFilePath = list(Path(outputDirectory).glob(f'{table.savingIdentifier}*final_mapping.pkl'))
         if len(mappingFilePath) != 1:
             raise Exception(f'Check mapping file for {table.tableName}')
-        process_mapping(table=table, pickleMappingFile=mappingFilePath[0])
+        process_mapping(insertionEngine=insertionEngine, table=table, pickleMappingFile=mappingFilePath[0])
 
-    # info files
     for table in ALL_HISTORICAL_SCHEMAS:
-        allCsvPaths = list(Path(REMAPPED_DIRECTORY).glob(f'**/{table.savingIdentifier}*.csv'))
-        copy_rows_into_table(table=table, orderedColumns=table.get_column_names(), csvPaths=allCsvPaths)
+        allCsvPaths = list(Path(f'{outputDirectory}/remapped_files').glob(f'**/{table.savingIdentifier}*.csv'))
+        copy_rows_into_table(insertionEngine=insertionEngine, table=table, orderedColumns=table.get_column_names(), csvPaths=allCsvPaths)
 
 
-def add_foreign_keys():
+def add_foreign_keys(insertionEngine):
     fkQuery = """
         ALTER TABLE {tableName} 
         ADD CONSTRAINT {constraintName} {foreignKeySQL};
@@ -80,21 +74,25 @@ def add_foreign_keys():
             )
 
 
-def add_indexes():
+def add_indexes(insertionEngine):
     for index in tqdm(INDEXES, desc='adding indexes'):
         insertionEngine.create_index(tableName=index['table'], column=index['column'])
 
 
-def add_views():
+def add_views(insertionEngine):
     for view in tqdm(ALL_VIEWS, desc='adding views'):
         insertionEngine.create_table(schema=view)
 
 
-def main():
-    add_files_to_database()
-    add_foreign_keys()
-    add_indexes()
-    add_views()
+def main(outputDirectory):
+    insertionEngine = PostgresInsertionEngine(
+        user=os.environ['POSTGRES_USERNAME'],
+        password=os.environ['POSTGRES_PASSWORD']
+    )
+    add_files_to_database(insertionEngine=insertionEngine, outputDirectory=outputDirectory)
+    add_foreign_keys(insertionEngine=insertionEngine)
+    add_indexes(insertionEngine=insertionEngine)
+    add_views(insertionEngine=insertionEngine)
 
 
 if __name__ == '__main__':
