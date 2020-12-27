@@ -112,7 +112,7 @@ class PostgresQueryEngine(PostgresEngine):
                     betfair_market_id = %(betfairMarketId)s AND
                     event_id = %(betfairEventId)s
             """,
-            parameters={'betfairMarketId': float(betfairMarketId), 'betfairEventId': int(betfairEventId)}
+            parameters={'betfairMarketId': str(betfairMarketId), 'betfairEventId': int(betfairEventId)}
         )
         if len(output) == 0:
             return None
@@ -279,7 +279,7 @@ class PostgresQueryEngine(PostgresEngine):
                     market_type = %(marketTypeId)s
             """,
             parameters={
-                'eventId': eventId,
+                'eventId': int(eventId),
                 'marketTypeId': int(marketTypeId)
             }
         )

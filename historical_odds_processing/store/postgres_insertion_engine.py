@@ -81,9 +81,9 @@ class PostgresInsertionEngine(PostgresQueryEngine):
         )
 
     def insert_market(self, betfairMarketId, eventName, eventId, eventTypeId, bettingTypeId, marketTypeId, countryCodeId, timezoneId):
-        existingId = self.get_market_id(eventId=eventId, marketTypeId=marketTypeId)
+        existingId = self.get_market(betfairEventId=eventId, betfairMarketId=betfairMarketId)
         if existingId is not None:
-            return existingId
+            return int(existingId['id'].values[0])
         return self.run_update_query(
             query="""
                 INSERT INTO
@@ -99,7 +99,7 @@ class PostgresInsertionEngine(PostgresQueryEngine):
                     )
             """,
             parameters={
-                'betfairMarketId': float(betfairMarketId),
+                'betfairMarketId': str(betfairMarketId),
                 'eventName': clean_text(text=eventName),
                 'eventId': int(eventId),
                 'eventTypeId': int(eventTypeId),
