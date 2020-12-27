@@ -4,7 +4,7 @@ import pickle
 from pathlib import Path
 from tqdm.notebook import tqdm
 
-from historical_odds_processing.store.db_insertion.output_filenames import OutputFilenames
+from historical_odds_processing.store.db_creation.output_filenames import OutputFilenames
 from historical_odds_processing.utils.batching import run_multiprocessing
 
 
@@ -19,10 +19,10 @@ def merge_mapping(args):
     pickle.dump(mapping, open(f'{workingDirectory}/{mappingName}_final_mapping.pkl', 'wb'))
 
 
-def merge_all_mappings(workingDirectory):
+def merge_all_mappings(outputDirectory):
     run_multiprocessing(
         functionToProcess=merge_mapping,
-        parameterList=[(workingDirectory, filename) for filename in OutputFilenames.ALL_MAPPING_FILES]
+        parameterList=[(outputDirectory, filename) for filename in OutputFilenames.ALL_MAPPING_FILES]
     )
 
 

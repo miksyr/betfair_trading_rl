@@ -3,15 +3,16 @@ import logging
 import json
 import pickle
 
-from typing import Sequence
+from datetime import datetime
 from tqdm.auto import tqdm
+from typing import Sequence
 
+from historical_odds_processing.datamodel.constants import BETFAIR_DATETIME_FORMAT
 from historical_odds_processing.datamodel.constants import BETFAIR_MARKET_DEFINITION_TAG
 from historical_odds_processing.datamodel.constants import BETFAIR_RUNNER_CHANGE_TAG
-from historical_odds_processing.store.db_insertion.csv_output_handler import CSVOutputHandler
-from historical_odds_processing.store.db_insertion.output_filenames import OutputFilenames
+from historical_odds_processing.store.db_creation.csv_output_handler import CSVOutputHandler
+from historical_odds_processing.store.db_creation.output_filenames import OutputFilenames
 from historical_odds_processing.utils.runner_identifier import get_runner_identifier
-from historical_odds_processing.utils.date_functions import from_isoformat
 
 
 class BZ2Processor:
@@ -75,8 +76,8 @@ class BZ2Processor:
                 'persistence_enabled': int(marketDefinitionData.get('persistenceEnabled')),
                 'market_base_rate': float(marketDefinitionData.get('marketBaseRate')),
                 'num_winners': int(marketDefinitionData.get('numberOfWinners')),
-                'market_start_time': from_isoformat(marketDefinitionData['marketTime'].split('.')[0]),
-                'market_suspend_time': from_isoformat(marketDefinitionData['suspendTime'].split('.')[0]),
+                'market_start_time': datetime.strptime(marketDefinitionData['marketTime'].split('.')[0], BETFAIR_DATETIME_FORMAT),
+                'market_suspend_time': datetime.strptime(marketDefinitionData['suspendTime'].split('.')[0], BETFAIR_DATETIME_FORMAT),
                 'bsp_reconciled': int(marketDefinitionData.get('bspReconciled')),
                 'market_is_complete': int(marketDefinitionData.get('complete')),
                 'in_play': int(marketDefinitionData.get('inPlay')),
@@ -87,7 +88,7 @@ class BZ2Processor:
                 'market_status': marketStatus,
                 'regulators': marketDefinitionData.get('regulators'),
                 'discount_allowed': int(marketDefinitionData.get('discountAllowed')),
-                'open_date': from_isoformat(marketDefinitionData['openDate'].split('.')[0])
+                'open_date': datetime.strptime(marketDefinitionData['openDate'].split('.')[0], BETFAIR_DATETIME_FORMAT)
             }
         )
 

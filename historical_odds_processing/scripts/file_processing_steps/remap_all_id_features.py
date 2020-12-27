@@ -5,8 +5,8 @@ import pickle
 from pathlib import Path
 from tqdm.notebook import tqdm
 
-from historical_odds_processing.store.db_insertion.csv_remapper import CSVRemapper
-from historical_odds_processing.store.db_insertion.output_filenames import OutputFilenames
+from historical_odds_processing.store.db_creation.csv_remapper import CSVRemapper
+from historical_odds_processing.store.db_creation.output_filenames import OutputFilenames
 from historical_odds_processing.utils.batching import get_data_batches, run_multiprocessing
 from historical_odds_processing.utils.paths import get_path
 

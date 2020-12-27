@@ -1,6 +1,7 @@
+from datetime import datetime
 from easy_postgres_engine import PostgresEngine
 
-from historical_odds_processing.utils.date_functions import from_isoformat
+from historical_odds_processing.datamodel.constants import BETFAIR_DATETIME_FORMAT
 from historical_odds_processing.utils.text_processing import clean_text
 
 
@@ -124,8 +125,8 @@ class PostgresInsertionEngine(PostgresEngine):
                 'persistenceEnabled': marketDefinition.get('persistenceEnabled'),
                 'marketBaseRate': marketDefinition.get('marketBaseRate'),
                 'numWinners': marketDefinition.get('numberOfWinners'),
-                'marketStartTime': from_isoformat(marketStartTime.split('.')[0]) if marketStartTime is not None else None,
-                'marketSuspendTime': from_isoformat(marketSuspendTime.split('.')[0]) if marketSuspendTime is not None else None,
+                'marketStartTime': datetime.strptime(marketStartTime.split('.')[0], BETFAIR_DATETIME_FORMAT) if marketStartTime is not None else None,
+                'marketSuspendTime': datetime.strptime(marketSuspendTime.split('.')[0], BETFAIR_DATETIME_FORMAT) if marketSuspendTime is not None else None,
                 'bspReconciled': marketDefinition.get('bspReconciled'),
                 'marketIsComplete': marketDefinition.get('complete'),
                 'inPlay': marketDefinition.get('inPlay'),
@@ -136,7 +137,7 @@ class PostgresInsertionEngine(PostgresEngine):
                 'marketStatus': marketStatus,
                 'regulators': marketDefinition.get('regulators'),
                 'discountAllowed': marketDefinition.get('discountAllowed'),
-                'openDate': from_isoformat(openDate.split('.')[0]) if openDate is not None else None
+                'openDate': datetime.strptime(openDate.split('.')[0], BETFAIR_DATETIME_FORMAT) if openDate is not None else None
             }
         )
 

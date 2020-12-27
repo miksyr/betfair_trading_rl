@@ -8,7 +8,7 @@ from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema
 from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import Runners
 from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import RunnerStatus
 from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import Timezones
-from historical_odds_processing.store.db_insertion.output_filenames import OutputFilenames
+from historical_odds_processing.store.db_creation.output_filenames import OutputFilenames
 
 
 class MarketInfo(Table):

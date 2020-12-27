@@ -6,7 +6,7 @@ import os
 
 from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import ALL_MAPPING_SCHEMAS
 from historical_odds_processing.datamodel.data_store_schema.historical_trading_schema import ALL_HISTORICAL_SCHEMAS
-from historical_odds_processing.store.db_insertion.postgres_insertion_engine import PostgresInsertionEngine
+from historical_odds_processing.store.db_creation.postgres_insertion_engine import PostgresInsertionEngine
 
 
 def create_postgres_data_store():
