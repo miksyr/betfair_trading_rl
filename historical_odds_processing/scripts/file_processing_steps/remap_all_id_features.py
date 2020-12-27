@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 
 from pathlib import Path
-from tqdm.notebook import tqdm
+from tqdm.auto import tqdm
 
 from historical_odds_processing.store.db_creation.csv_remapper import CSVRemapper
 from historical_odds_processing.store.db_creation.output_filenames import OutputFilenames
