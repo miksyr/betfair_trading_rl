@@ -191,43 +191,43 @@ class PostgresInsertionEngine(PostgresQueryEngine):
             parameters={'status': clean_text(text=runnerStatus)}
         )
 
-    def insert_runner_status_update(self, unixTimestamp, statusId, betfairMarketTableId, betfairRunnerTableId):
+    def insert_runner_status_update(self, unixTimestamp, statusId, betfairMarketId, betfairRunnerTableId):
         return self.run_update_query(
             query="""
                 INSERT INTO
                     tbl_betfair_runner_status_updates
                     (
-                        unix_timestamp, status_id, betfair_market_table_id, betfair_runner_table_id
+                        unix_timestamp, status_id, betfair_market_id, betfair_runner_table_id
                     ) 
                 VALUES 
                     (
-                        %(unixTimestamp)s, %(statusId)s, %(betfairMarketTableId)s, %(betfairRunnerTableId)s
+                        %(unixTimestamp)s, %(statusId)s, %(betfairMarketId)s, %(betfairRunnerTableId)s
                     )
             """,
             parameters={
                 'unixTimestamp': int(unixTimestamp),
                 'statusId': int(statusId),
-                'betfairMarketTableId': int(betfairMarketTableId),
+                'betfairMarketId': str(betfairMarketId),
                 'betfairRunnerTableId': int(betfairRunnerTableId)
             }
         )
 
-    def insert_last_traded_price(self, unixTimestamp, betfairMarketTableId, betfairRunnerTableId, price):
+    def insert_last_traded_price(self, unixTimestamp, betfairMarketId, betfairRunnerTableId, price):
         return self.run_update_query(
             query="""
                 INSERT INTO
                     tbl_betfair_last_traded_price
                     (
-                        unix_timestamp, betfair_market_table_id, betfair_runner_table_id, price
+                        unix_timestamp, betfair_market_id, betfair_runner_table_id, price
                     ) 
                 VALUES 
                     (
-                        %(unixTimestamp)s, %(betfairMarketTableId)s, %(betfairRunnerTableId)s, %(price)s
+                        %(unixTimestamp)s, %(betfairMarketId)s, %(betfairRunnerTableId)s, %(price)s
                     )
             """,
             parameters={
                 'unixTimestamp': int(unixTimestamp),
-                'betfairMarketTableId': int(betfairMarketTableId),
+                'betfairMarketId': str(betfairMarketId),
                 'betfairRunnerTableId': int(betfairRunnerTableId),
                 'price': float(price)
             }

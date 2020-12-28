@@ -304,3 +304,73 @@ class TestPostgresEngine(TestCase):
         self.assertEqual(queryResult1, 1)
         queryResult2 = self.dbEngine.get_runner_status_id(runnerStatus=TEST_RUNNER_STATUS_2)
         self.assertEqual(queryResult2, 2)
+
+    def test_runner_status_update(self):
+        RUNNER_STATUS_UPDATE_1 = {'timestamp': 1, 'statusId': 2, 'betfairMarketId': 3, 'betfairRunnerTableId': 4}
+        RUNNER_STATUS_UPDATE_2 = {'timestamp': 5, 'statusId': 6, 'betfairMarketId': 7, 'betfairRunnerTableId': 8}
+        insertedId1 = self.dbEngine.insert_runner_status_update(
+            unixTimestamp=RUNNER_STATUS_UPDATE_1['timestamp'],
+            statusId=RUNNER_STATUS_UPDATE_1['statusId'],
+            betfairMarketId=RUNNER_STATUS_UPDATE_1['betfairMarketId'],
+            betfairRunnerTableId=RUNNER_STATUS_UPDATE_1['betfairRunnerTableId']
+        )
+        self.assertEqual(insertedId1, 1)
+        insertedId2 = self.dbEngine.insert_runner_status_update(
+            unixTimestamp=RUNNER_STATUS_UPDATE_2['timestamp'],
+            statusId=RUNNER_STATUS_UPDATE_2['statusId'],
+            betfairMarketId=RUNNER_STATUS_UPDATE_2['betfairMarketId'],
+            betfairRunnerTableId=RUNNER_STATUS_UPDATE_2['betfairRunnerTableId']
+        )
+        self.assertEqual(insertedId2, 2)
+        insertedId3 = self.dbEngine.insert_runner_status_update(
+            unixTimestamp=RUNNER_STATUS_UPDATE_1['timestamp'],
+            statusId=RUNNER_STATUS_UPDATE_1['statusId'],
+            betfairMarketId=RUNNER_STATUS_UPDATE_1['betfairMarketId'],
+            betfairRunnerTableId=RUNNER_STATUS_UPDATE_1['betfairRunnerTableId']
+        )
+        self.assertEqual(insertedId3, 3)
+
+        fullTableResults = self.dbEngine.run_select_query(query='SELECT * FROM tbl_betfair_runner_status_updates')
+        self.assertEqual(len(fullTableResults), 3)
+
+        queryResult1 = self.dbEngine.get_last_runner_status_info(betfairMarketId=RUNNER_STATUS_UPDATE_1['betfairMarketId'], betfairRunnerTableId=RUNNER_STATUS_UPDATE_1['betfairRunnerTableId'])
+        self.assertEqual(queryResult1['unix_timestamp'].values[0], RUNNER_STATUS_UPDATE_1['timestamp'])
+        self.assertEqual(queryResult1['status_id'].values[0], RUNNER_STATUS_UPDATE_1['statusId'])
+        queryResult2 = self.dbEngine.get_last_runner_status_info(betfairMarketId=RUNNER_STATUS_UPDATE_2['betfairMarketId'], betfairRunnerTableId=RUNNER_STATUS_UPDATE_2['betfairRunnerTableId'])
+        self.assertEqual(queryResult2['unix_timestamp'].values[0], RUNNER_STATUS_UPDATE_2['timestamp'])
+        self.assertEqual(queryResult2['status_id'].values[0], RUNNER_STATUS_UPDATE_2['statusId'])
+
+    def test_last_traded_price(self):
+        LAST_TRADED_PRICE_1 = {'timestamp': 1, 'price': 2, 'betfairMarketId': 3, 'betfairRunnerTableId': 4}
+        LAST_TRADED_PRICE_2 = {'timestamp': 5, 'price': 6, 'betfairMarketId': 7, 'betfairRunnerTableId': 8}
+        insertedId1 = self.dbEngine.insert_last_traded_price(
+            unixTimestamp=LAST_TRADED_PRICE_1['timestamp'],
+            betfairMarketId=LAST_TRADED_PRICE_1['betfairMarketId'],
+            betfairRunnerTableId=LAST_TRADED_PRICE_1['betfairRunnerTableId'],
+            price=LAST_TRADED_PRICE_1['price']
+        )
+        self.assertEqual(insertedId1, 1)
+        insertedId2 = self.dbEngine.insert_last_traded_price(
+            unixTimestamp=LAST_TRADED_PRICE_2['timestamp'],
+            betfairMarketId=LAST_TRADED_PRICE_2['betfairMarketId'],
+            betfairRunnerTableId=LAST_TRADED_PRICE_2['betfairRunnerTableId'],
+            price=LAST_TRADED_PRICE_2['price']
+        )
+        self.assertEqual(insertedId2, 2)
+        insertedId3 = self.dbEngine.insert_last_traded_price(
+            unixTimestamp=LAST_TRADED_PRICE_1['timestamp'],
+            betfairMarketId=LAST_TRADED_PRICE_1['betfairMarketId'],
+            betfairRunnerTableId=LAST_TRADED_PRICE_1['betfairRunnerTableId'],
+            price=LAST_TRADED_PRICE_1['price']
+        )
+        self.assertEqual(insertedId3, 3)
+
+        fullTableResults = self.dbEngine.run_select_query(query='SELECT * FROM tbl_betfair_last_traded_price')
+        self.assertEqual(len(fullTableResults), 3)
+
+        queryResult1 = self.dbEngine.get_last_traded_price(betfairMarketId=LAST_TRADED_PRICE_1['betfairMarketId'], betfairRunnerTableId=LAST_TRADED_PRICE_1['betfairRunnerTableId'])
+        self.assertEqual(queryResult1['unix_timestamp'].values[0], LAST_TRADED_PRICE_1['timestamp'])
+        self.assertEqual(queryResult1['price'].values[0], LAST_TRADED_PRICE_1['price'])
+        queryResult2 = self.dbEngine.get_last_traded_price(betfairMarketId=LAST_TRADED_PRICE_2['betfairMarketId'], betfairRunnerTableId=LAST_TRADED_PRICE_2['betfairRunnerTableId'])
+        self.assertEqual(queryResult2['unix_timestamp'].values[0], LAST_TRADED_PRICE_2['timestamp'])
+        self.assertEqual(queryResult2['price'].values[0], LAST_TRADED_PRICE_2['price'])

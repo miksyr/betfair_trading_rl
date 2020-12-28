@@ -261,15 +261,14 @@ class PostgresQueryEngine(PostgresEngine):
                         unix_timestamp DESC
                     LIMIT 1
                """,
-            parameters={'betfairMarketId': betfairMarketId, 'betfairRunnerTableId': int(betfairRunnerTableId)}
+            parameters={'betfairMarketId': str(betfairMarketId), 'betfairRunnerTableId': int(betfairRunnerTableId)}
         )
         if len(output) == 0:
             return None
         elif len(output) == 1:
             return output
         else:
-            raise ValueError(
-                f'No last status found for runnerId {betfairRunnerTableId}, market: {betfairMarketId} in tbl_betfair_runner_status_updates')
+            raise ValueError(f'No last status found for runnerId {betfairRunnerTableId}, market: {betfairMarketId} in tbl_betfair_runner_status_updates')
 
     def get_last_traded_price(self, betfairMarketId, betfairRunnerTableId):
         output = self.run_select_query(
@@ -279,13 +278,13 @@ class PostgresQueryEngine(PostgresEngine):
                 FROM
                     tbl_betfair_last_traded_price
                 WHERE
-                    betfair_market_table_id = %(betfairMarketId)s AND
+                    betfair_market_id = %(betfairMarketId)s AND
                     betfair_runner_table_id = %(betfairRunnerTableId)s
                 ORDER BY
                     unix_timestamp DESC
                 LIMIT 1
                """,
-            parameters={'betfairMarketId': betfairMarketId, 'betfairRunnerTableId': int(betfairRunnerTableId)}
+            parameters={'betfairMarketId': str(betfairMarketId), 'betfairRunnerTableId': int(betfairRunnerTableId)}
         )
         if len(output) == 0:
             return None
