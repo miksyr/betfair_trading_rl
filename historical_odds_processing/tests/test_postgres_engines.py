@@ -1,6 +1,9 @@
 import testing.postgresql
+
+from datetime import datetime
 from unittest import TestCase
 
+from historical_odds_processing.datamodel.constants import BETFAIR_DATETIME_FORMAT
 from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import ALL_MAPPING_SCHEMAS
 from historical_odds_processing.datamodel.data_store_schema.historical_trading_schema import ALL_HISTORICAL_SCHEMAS
 from historical_odds_processing.store.postgres_insertion_engine import PostgresInsertionEngine
@@ -204,3 +207,100 @@ class TestPostgresEngine(TestCase):
         self.assertEqual(len(marketInfo1), 1)
         marketInfo2 = self.dbEngine.get_market(betfairEventId=MARKET_2['eventId'], betfairMarketId=MARKET_2['betfairMarketId'])
         self.assertEqual(len(marketInfo2), 1)
+
+    def test_market_definition(self):
+        TEST_MARKET_DEFINITION = {
+            'betfairMarketId': 1.000,
+            'eventId': 10101,
+            'unixTimestamp': 1000,
+            'marketStatus': 2,
+            'marketDefinition': {
+                'marketTime': '1970-01-01T12:00:00',
+                'suspendTime': '1970-01-01T11:59:59',
+                'openDate': '1970-01-01T01:00:00',
+                'version': 111111,
+                'bspMarket': False,
+                'turnInPlayEnabled': True,
+                'persistenceEnabled': True,
+                'marketBaseRate': 0.05,
+                'numberOfWinners': 1,
+                'bspReconciled': True,
+                'complete': True,
+                'inPlay': False,
+                'crossMatching': False,
+                'runnersVoidable': True,
+                'numberOfActiveRunners': 3,
+                'betDelay': 5,
+                'regulators': 'TEST',
+                'discountAllowed': False,
+
+            }
+        }
+
+        insertedId1 = self.dbEngine.insert_market_definition(
+            betfairMarketId=TEST_MARKET_DEFINITION['betfairMarketId'],
+            eventId=TEST_MARKET_DEFINITION['eventId'],
+            unixTimestamp=TEST_MARKET_DEFINITION['unixTimestamp'],
+            marketStatusId=TEST_MARKET_DEFINITION['marketStatus'],
+            marketDefinition=TEST_MARKET_DEFINITION['marketDefinition']
+        )
+        self.assertEqual(insertedId1, 1)
+
+        insertedId2 = self.dbEngine.insert_market_definition(
+            betfairMarketId=TEST_MARKET_DEFINITION['betfairMarketId'],
+            eventId=TEST_MARKET_DEFINITION['eventId'],
+            unixTimestamp=TEST_MARKET_DEFINITION['unixTimestamp'],
+            marketStatusId=TEST_MARKET_DEFINITION['marketStatus'],
+            marketDefinition=TEST_MARKET_DEFINITION['marketDefinition']
+        )
+        self.assertEqual(insertedId2, 2)
+
+        fullTableResults = self.dbEngine.run_select_query(query='SELECT * FROM tbl_betfair_market_definitions')
+        self.assertEqual(len(fullTableResults), 2)
+
+        marketDefinition = self.dbEngine.check_last_market_definition(betfairMarketId=TEST_MARKET_DEFINITION['betfairMarketId'])
+        self.assertEqual(len(marketDefinition), 1)
+        self.assertEqual(TEST_MARKET_DEFINITION['unixTimestamp'], marketDefinition['unix_timestamp'].values[0])
+        self.assertEqual(TEST_MARKET_DEFINITION['marketStatus'], marketDefinition['market_status'].values[0])
+        self.assertEqual(TEST_MARKET_DEFINITION['marketDefinition']['version'], marketDefinition['version'].values[0])
+        self.assertEqual(TEST_MARKET_DEFINITION['marketDefinition']['marketBaseRate'], marketDefinition['market_base_rate'].values[0])
+        self.assertEqual(TEST_MARKET_DEFINITION['marketDefinition']['complete'], marketDefinition['market_is_complete'].values[0])
+
+        eventStartTime = self.dbEngine.get_event_id_start_time(betfairEventId=TEST_MARKET_DEFINITION['eventId'])
+        self.assertEqual(eventStartTime, datetime.strptime(TEST_MARKET_DEFINITION['marketDefinition']['openDate'], BETFAIR_DATETIME_FORMAT))
+
+    def test_runner(self):
+        TEST_RUNNER_1 = {'runnerName': 'testRunner1', 'betfairId': 123}
+        TEST_RUNNER_2 = {'runnerName': 'testRunner2', 'betfairId': 234}
+        insertedId1 = self.dbEngine.insert_runner(runnerName=TEST_RUNNER_1['runnerName'], betfairId=TEST_RUNNER_1['betfairId'])
+        self.assertEqual(insertedId1, 1)
+        insertedId2 = self.dbEngine.insert_runner(runnerName=TEST_RUNNER_2['runnerName'], betfairId=TEST_RUNNER_2['betfairId'])
+        self.assertEqual(insertedId2, 2)
+        insertedId3 = self.dbEngine.insert_runner(runnerName=TEST_RUNNER_1['runnerName'], betfairId=TEST_RUNNER_1['betfairId'])
+        self.assertEqual(insertedId3, 1)
+
+        fullTableResults = self.dbEngine.run_select_query(query='SELECT * FROM tbl_betfair_runners')
+        self.assertEqual(len(fullTableResults), 2)
+
+        runnerNameQueryId = self.dbEngine.get_runner_id_by_name(runnerName=TEST_RUNNER_1['runnerName'])
+        self.assertEqual(runnerNameQueryId, 1)
+        betfairIdQueryId = self.dbEngine.get_runner_id_by_betfair_id(betfairRunnerId=TEST_RUNNER_2['betfairId'])
+        self.assertEqual(betfairIdQueryId, 2)
+
+    def test_runner_status(self):
+        TEST_RUNNER_STATUS_1 = 'testRunnerStatus1'
+        TEST_RUNNER_STATUS_2 = 'testRunnerStatus2'
+        insertedId1 = self.dbEngine.insert_runner_status(runnerStatus=TEST_RUNNER_STATUS_1)
+        self.assertEqual(insertedId1, 1)
+        insertedId2 = self.dbEngine.insert_runner_status(runnerStatus=TEST_RUNNER_STATUS_2)
+        self.assertEqual(insertedId2, 2)
+        insertedId3 = self.dbEngine.insert_runner_status(runnerStatus=TEST_RUNNER_STATUS_1)
+        self.assertEqual(insertedId3, 1)
+
+        fullTableResults = self.dbEngine.run_select_query(query='SELECT * FROM tbl_betfair_runner_status')
+        self.assertEqual(len(fullTableResults), 2)
+
+        queryResult1 = self.dbEngine.get_runner_status_id(runnerStatus=TEST_RUNNER_STATUS_1)
+        self.assertEqual(queryResult1, 1)
+        queryResult2 = self.dbEngine.get_runner_status_id(runnerStatus=TEST_RUNNER_STATUS_2)
+        self.assertEqual(queryResult2, 2)

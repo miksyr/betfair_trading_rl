@@ -121,6 +121,29 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'Error for event info: {betfairEventId}, market: {betfairMarketId} in tbl_betfair_markets')
 
+    def get_market_id(self, eventId, marketTypeId):
+        output = self.run_select_query(
+            query="""
+                SELECT
+                    *
+                FROM
+                    tbl_betfair_markets
+                WHERE
+                    event_id = %(eventId)s AND
+                    market_type = %(marketTypeId)s
+            """,
+            parameters={
+                'eventId': int(eventId),
+                'marketTypeId': int(marketTypeId)
+            }
+        )
+        if len(output) == 0:
+            return None
+        elif len(output) == 1:
+            return output['betfair_market_id'][0]
+        else:
+            raise ValueError(f'Error for market: {marketTypeId} in event {eventId}')
+
     def check_last_market_definition(self, betfairMarketId):
         output = self.run_select_query(
             query="""
@@ -129,12 +152,12 @@ class PostgresQueryEngine(PostgresEngine):
                 FROM
                     tbl_betfair_market_definitions
                 WHERE
-                    betfair_market_table_id = %(betfairMarketId)s
+                    betfair_market_id = %(betfairMarketId)s
                 ORDER BY
                     unix_timestamp DESC
                 LIMIT 1
             """,
-            parameters={'betfairMarketId': int(betfairMarketId)}
+            parameters={'betfairMarketId': str(betfairMarketId)}
         )
         if len(output) == 0:
             return None
@@ -143,7 +166,31 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'No last market definition found for {betfairMarketId} in tbl_betfair_market_definitions')
 
-    def get_runner_index_by_name(self, runnerName):
+    def get_event_id_start_time(self, betfairEventId):
+        output = self.run_select_query(
+            query="""
+                SELECT
+                    *
+                FROM
+                    tbl_betfair_market_definitions
+                WHERE
+                    event_id = %(betfairEventId)s
+                ORDER BY
+                    unix_timestamp ASC
+                LIMIT 1
+            """,
+            parameters={
+                'betfairEventId': int(betfairEventId)
+            }
+        )
+        if len(output) == 0:
+            return None
+        elif len(output) == 1:
+            return output['open_date'][0]
+        else:
+            raise ValueError(f'Error getting start time for event: {betfairEventId}')
+
+    def get_runner_id_by_name(self, runnerName):
         output = self.run_select_query(
             query="""
                 SELECT
@@ -162,7 +209,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             return output['id'].values
 
-    def get_runner_index_by_betfair_id(self, betfairRunnerId):
+    def get_runner_id_by_betfair_id(self, betfairRunnerId):
         output = self.run_select_query(
             query="""
                 SELECT
@@ -181,7 +228,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'No single id found for {betfairRunnerId} in tbl_betfair_runners')
 
-    def get_runner_status_index(self, runnerStatus):
+    def get_runner_status_id(self, runnerStatus):
         output = self.run_select_query(
             query="""
                 SELECT
@@ -266,51 +313,3 @@ class PostgresQueryEngine(PostgresEngine):
             """,
             parameters=parameters
         )
-
-    def get_market_id(self, eventId, marketTypeId):
-        output = self.run_select_query(
-            query="""
-                SELECT
-                    *
-                FROM
-                    tbl_betfair_markets
-                WHERE
-                    event_id = %(eventId)s AND
-                    market_type = %(marketTypeId)s
-            """,
-            parameters={
-                'eventId': int(eventId),
-                'marketTypeId': int(marketTypeId)
-            }
-        )
-        if len(output) == 0:
-            return None
-        elif len(output) == 1:
-            return output['betfair_market_id'][0]
-        else:
-            raise ValueError(f'Error for market: {marketTypeId} in event {eventId}')
-
-    def get_event_id_start_time(self, betfairEventId):
-        output = self.run_select_query(
-            query="""
-                SELECT
-                    *
-                FROM
-                    tbl_betfair_market_definitions
-                WHERE
-                    event_id = %(betfairEventId)s AND
-                    in_play = True
-                ORDER BY
-                    unix_timestamp ASC
-                LIMIT 1
-            """,
-            parameters={
-                'betfairEventId': int(betfairEventId)
-            }
-        )
-        if len(output) == 0:
-            return None
-        elif len(output) == 1:
-            return int(output['unix_timestamp'][0])
-        else:
-            raise ValueError(f'Error getting start time for event: {betfairEventId}')

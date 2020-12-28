@@ -110,7 +110,7 @@ class PostgresInsertionEngine(PostgresQueryEngine):
             }
         )
 
-    def insert_market_definition(self, betfairMarketTableId, unixTimestamp, marketStatus, marketDefinition):
+    def insert_market_definition(self, betfairMarketId, eventId, unixTimestamp, marketStatusId, marketDefinition):
         marketStartTime = marketDefinition.get('marketTime')
         marketSuspendTime = marketDefinition.get('suspendTime')
         openDate = marketDefinition.get('openDate')
@@ -119,7 +119,7 @@ class PostgresInsertionEngine(PostgresQueryEngine):
                 INSERT INTO
                     tbl_betfair_market_definitions 
                     (
-                        betfair_market_table_id, unix_timestamp, version, bsp_market, 
+                        betfair_market_id, event_id, unix_timestamp, version, bsp_market, 
                         turn_in_play_enabled, persistence_enabled, market_base_rate, num_winners, 
                         market_start_time, market_suspend_time, bsp_reconciled, market_is_complete, 
                         in_play, cross_matching, runners_voidable, num_active_runners, bet_delay, 
@@ -127,7 +127,7 @@ class PostgresInsertionEngine(PostgresQueryEngine):
                     ) 
                 VALUES
                     (
-                        %(betfairMarketTableId)s, %(unixTimestamp)s, %(version)s, %(bspMarket)s, 
+                        %(betfairMarketId)s, %(eventId)s, %(unixTimestamp)s, %(version)s, %(bspMarket)s, 
                         %(turnInPlayEnabled)s, %(persistenceEnabled)s, %(marketBaseRate)s, %(numWinners)s, 
                         %(marketStartTime)s, %(marketSuspendTime)s, %(bspReconciled)s, %(marketIsComplete)s, 
                         %(inPlay)s, %(crossMatching)s, %(runnersVoidable)s, %(numActiveRunners)s, %(betDelay)s, 
@@ -135,7 +135,8 @@ class PostgresInsertionEngine(PostgresQueryEngine):
                     )
             """,
             parameters={
-                'betfairMarketTableId': int(betfairMarketTableId),
+                'betfairMarketId': str(betfairMarketId),
+                'eventId': int(eventId),
                 'unixTimestamp': int(unixTimestamp),
                 'version': marketDefinition.get('version'),
                 'bspMarket': marketDefinition.get('bspMarket'),
@@ -152,33 +153,32 @@ class PostgresInsertionEngine(PostgresQueryEngine):
                 'runnersVoidable': marketDefinition.get('runnersVoidable'),
                 'numActiveRunners': marketDefinition.get('numberOfActiveRunners'),
                 'betDelay': marketDefinition.get('betDelay'),
-                'marketStatus': marketStatus,
+                'marketStatus': int(marketStatusId),
                 'regulators': marketDefinition.get('regulators'),
                 'discountAllowed': marketDefinition.get('discountAllowed'),
                 'openDate': datetime.strptime(openDate.split('.')[0], BETFAIR_DATETIME_FORMAT) if openDate is not None else None
             }
         )
 
-    def insert_runner(self, runnerName, betfairId, betfairSortPriority):
-        existingId = self.get_runner_index_by_betfair_id(betfairRunnerId=betfairId)
+    def insert_runner(self, runnerName, betfairId):
+        existingId = self.get_runner_id_by_betfair_id(betfairRunnerId=betfairId)
         if existingId is not None:
             return existingId
         return self.run_update_query(
             query="""
                 INSERT INTO
-                    tbl_betfair_runners(runner_name, betfair_id, betfair_sort_priority) 
+                    tbl_betfair_runners(runner_name, betfair_id) 
                 VALUES 
-                    (%(runnerName)s, %(betfairId)s, %(betfairSortPriority)s)
+                    (%(runnerName)s, %(betfairId)s)
             """,
             parameters={
                 'runnerName': clean_text(text=runnerName),
                 'betfairId': int(betfairId),
-                'betfairSortPriority': int(betfairSortPriority)
             }
         )
 
     def insert_runner_status(self, runnerStatus):
-        existingId = self.get_runner_status_index(runnerStatus=runnerStatus)
+        existingId = self.get_runner_status_id(runnerStatus=runnerStatus)
         if existingId is not None:
             return existingId
         return self.run_update_query(
