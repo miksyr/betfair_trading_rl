@@ -4,6 +4,7 @@ import json
 import pickle
 
 from datetime import datetime
+from pathlib import Path
 from tqdm.auto import tqdm
 from typing import Sequence
 
@@ -147,6 +148,7 @@ class BZ2Processor:
         pickle.dump(self.runnerStatus, open(f'{outputDirectory}/{OutputFilenames.RUNNER_STATUS}.pkl', 'wb'))
 
     def process_files(self, outputDirectory: str):
+        Path(outputDirectory).mkdir(parents=True, exist_ok=True)
         for filePath in tqdm(self.bz2FilePaths):
             try:
                 with bz2.open(filename=filePath, mode='rb') as bz2file:
