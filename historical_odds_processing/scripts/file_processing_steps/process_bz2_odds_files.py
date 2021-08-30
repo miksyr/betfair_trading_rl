@@ -19,10 +19,19 @@ from historical_odds_processing.utils.paths import get_path
 def process_bz2_file(args):
     filepathBatch, validCountryCodes, outputPath, chunkId = args
     outputPath = get_path(outputPath, chunkId)
-    marketInfoHandler = CSVOutputHandler(fileName=f'{outputPath}/{OutputFilenames.MARKET_INFO}.csv', tableFields=MarketInfo().get_column_names())
-    marketDefinitionHandler = CSVOutputHandler(fileName=f'{outputPath}/{OutputFilenames.MARKET_DEFINITIONS}.csv', tableFields=MarketDefinitions().get_column_names())
-    runnerStatusHandler = CSVOutputHandler(fileName=f'{outputPath}/{OutputFilenames.RUNNER_STATUS_UPDATES}.csv', tableFields=RunnerStatusUpdates().get_column_names())
-    lastPriceHandler = CSVOutputHandler(fileName=f'{outputPath}/{OutputFilenames.LAST_TRADED_PRICE}.csv', tableFields=LastTradedPrice().get_column_names())
+    marketInfoHandler = CSVOutputHandler(
+        fileName=f"{outputPath}/{OutputFilenames.MARKET_INFO}.csv", tableFields=MarketInfo().get_column_names()
+    )
+    marketDefinitionHandler = CSVOutputHandler(
+        fileName=f"{outputPath}/{OutputFilenames.MARKET_DEFINITIONS}.csv", tableFields=MarketDefinitions().get_column_names()
+    )
+    runnerStatusHandler = CSVOutputHandler(
+        fileName=f"{outputPath}/{OutputFilenames.RUNNER_STATUS_UPDATES}.csv",
+        tableFields=RunnerStatusUpdates().get_column_names(),
+    )
+    lastPriceHandler = CSVOutputHandler(
+        fileName=f"{outputPath}/{OutputFilenames.LAST_TRADED_PRICE}.csv", tableFields=LastTradedPrice().get_column_names()
+    )
     fileProcessor = BZ2Processor(
         bz2FilePaths=filepathBatch,
         marketInfoHandler=marketInfoHandler,
@@ -35,17 +44,17 @@ def process_bz2_file(args):
 
 
 def process_all_bz2_files(inputDirectory, outputDirectory, validCountryCodes, numThreads=None):
-    for yearDir in tqdm(list(Path(inputDirectory).glob('*')), position=0, desc='looping through years'):
-        for monthDir in tqdm(list(yearDir.glob('*')), position=1, desc='looping through months'):
+    for yearDir in tqdm(list(Path(inputDirectory).glob("*")), position=0, desc="looping through years"):
+        for monthDir in tqdm(list(yearDir.glob("*")), position=1, desc="looping through months"):
             outputPath = get_path(outputDirectory, yearDir.parts[-1], monthDir.parts[-1])
-            marketFilepaths = Path(monthDir).glob('**/*.bz2')
-            marketFilepaths = [file for file in marketFilepaths if re.search('^\d\.\d.*\.bz2', file.parts[-1]) is not None]
+            marketFilepaths = Path(monthDir).glob("**/*.bz2")
+            marketFilepaths = [file for file in marketFilepaths if re.search("^\d\.\d.*\.bz2", file.parts[-1]) is not None]
             filepathBatches = get_data_batches(data=marketFilepaths, numBatches=numThreads)
             run_multiprocessing(
                 functionToProcess=process_bz2_file,
-                parameterList=[(paths, validCountryCodes, outputPath, i) for i, paths in enumerate(filepathBatches)]
+                parameterList=[(paths, validCountryCodes, outputPath, i) for i, paths in enumerate(filepathBatches)],
             )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     fire.Fire(process_all_bz2_files)
