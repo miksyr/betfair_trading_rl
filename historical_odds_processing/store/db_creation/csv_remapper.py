@@ -7,8 +7,9 @@ from historical_odds_processing.utils.paths import get_path
 
 
 class CSVRemapper:
-
-    def __init__(self, csvToRemap: str, remappingDict: Dict[str, Dict[Any, Any]], outputDirectory: str, chunkSize: int = 100000):
+    def __init__(
+        self, csvToRemap: str, remappingDict: Dict[str, Dict[Any, Any]], outputDirectory: str, chunkSize: int = 100000
+    ):
         self.csvToRemap = csvToRemap
         self.remappingDict = remappingDict
         self.outputDirectory = outputDirectory
@@ -22,4 +23,4 @@ class CSVRemapper:
             outputFilename = f'{existingPathParts[-1].split(".")[0]}_{chunkIndex}.csv'
             for column, remappingDictionary in self.remappingDict.items():
                 chunk[column] = chunk[column].map(remappingDictionary.get)
-            chunk.to_csv(f'{outputPath}/{outputFilename}', index=False)
+            chunk.to_csv(f"{outputPath}/{outputFilename}", index=False)
