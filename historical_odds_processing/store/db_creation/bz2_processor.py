@@ -6,7 +6,7 @@ import pickle
 from datetime import datetime
 from pathlib import Path
 from tqdm.auto import tqdm
-from typing import Sequence
+from typing import Any, Dict, Sequence, Tuple, Union
 
 from historical_odds_processing.datamodel.constants import BETFAIR_DATETIME_FORMAT
 from historical_odds_processing.datamodel.constants import BETFAIR_MARKET_DEFINITION_TAG
@@ -18,7 +18,15 @@ from historical_odds_processing.utils.runner_identifier import get_runner_identi
 
 class BZ2Processor:
 
-    def __init__(self, bz2FilePaths: Sequence[str], marketInfoHandler: CSVOutputHandler, marketDefinitionHandler: CSVOutputHandler, runnerStatusUpdateHandler: CSVOutputHandler, lastTradedPriceHandler: CSVOutputHandler, countryCodeFilter: Sequence[str] = None):
+    def __init__(
+            self,
+            bz2FilePaths: Sequence[str],
+            marketInfoHandler: CSVOutputHandler,
+            marketDefinitionHandler: CSVOutputHandler,
+            runnerStatusUpdateHandler: CSVOutputHandler,
+            lastTradedPriceHandler: CSVOutputHandler,
+            countryCodeFilter: Sequence[str] = None
+    ):
         self.bz2FilePaths = bz2FilePaths
         self.marketInfoHandler = marketInfoHandler
         self.marketDefinitionHandler = marketDefinitionHandler
@@ -34,7 +42,7 @@ class BZ2Processor:
         self.runnerStatus = set()
         self.lastRunnerStatus = {}
 
-    def process_market_info(self, marketChangeData: dict):
+    def process_market_info(self, marketChangeData: Dict[str, Any]) -> Tuple[str, int]:
         marketDefinitionData = marketChangeData[BETFAIR_MARKET_DEFINITION_TAG]
         bettingType = marketDefinitionData['bettingType']
         marketType = marketDefinitionData['marketType']
@@ -46,8 +54,8 @@ class BZ2Processor:
         self.countryCodes.add(countryCode)
         self.timezones.add(timezone)
 
-        betfairMarketId = marketChangeData['id']
-        eventId = marketDefinitionData['eventId']
+        betfairMarketId = str(marketChangeData['id'])
+        eventId = int(marketDefinitionData['eventId'])
         self.marketInfoHandler.add(
             data={
                 'betfair_market_id': str(betfairMarketId),
@@ -62,7 +70,7 @@ class BZ2Processor:
         )
         return betfairMarketId, eventId
 
-    def process_market_definition(self, betfairMarketId: str, unixTimestamp: int, marketChangeData: dict):
+    def process_market_definition(self, betfairMarketId: str, unixTimestamp: int, marketChangeData: Dict[str, Any]) -> None:
         marketDefinitionData = marketChangeData[BETFAIR_MARKET_DEFINITION_TAG]
         marketStatus = marketDefinitionData.get('status')
         self.marketStatuses.add(marketStatus)
@@ -93,7 +101,7 @@ class BZ2Processor:
             }
         )
 
-    def process_runners(self, runners: Sequence[dict], unixTimestamp: int, betfairMarketId: str, eventId: int):
+    def process_runners(self, runners: Sequence[Dict[str, Any]], unixTimestamp: int, betfairMarketId: str, eventId: int) -> Dict[str, str]:
         runnerIdentifierDict = {}
         for runner in runners:
             runnerIdentifier = get_runner_identifier(runner['name'], runner['id'])
@@ -127,7 +135,7 @@ class BZ2Processor:
                     )
         return runnerIdentifierDict
 
-    def process_last_traded_price(self, unixTimestamp: int, betfairMarketId: str, eventId: int, runnerIdentifier: int, price: float):
+    def process_last_traded_price(self, unixTimestamp: int, betfairMarketId: str, eventId: int, runnerIdentifier: str, price: float) -> None:
         self.lastTradedPriceHandler.add(
             data={
                 'unix_timestamp': int(unixTimestamp),
@@ -138,7 +146,7 @@ class BZ2Processor:
             }
         )
 
-    def save_outputs(self, outputDirectory: str):
+    def save_outputs(self, outputDirectory: Union[str, Path]) -> None:
         pickle.dump(self.bettingTypes, open(f'{outputDirectory}/{OutputFilenames.BETTING_TYPES}.pkl', 'wb'))
         pickle.dump(self.marketTypes, open(f'{outputDirectory}/{OutputFilenames.MARKET_TYPES}.pkl', 'wb'))
         pickle.dump(self.marketStatuses, open(f'{outputDirectory}/{OutputFilenames.MARKET_STATUS}.pkl', 'wb'))
@@ -147,7 +155,7 @@ class BZ2Processor:
         pickle.dump(self.runners, open(f'{outputDirectory}/{OutputFilenames.RUNNERS}.pkl', 'wb'))
         pickle.dump(self.runnerStatus, open(f'{outputDirectory}/{OutputFilenames.RUNNER_STATUS}.pkl', 'wb'))
 
-    def process_files(self, outputDirectory: str):
+    def process_files(self, outputDirectory: Union[str, Path]) -> None:
         Path(outputDirectory).mkdir(parents=True, exist_ok=True)
         for filePath in tqdm(self.bz2FilePaths):
             try:

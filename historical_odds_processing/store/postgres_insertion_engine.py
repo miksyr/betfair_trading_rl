@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any, Dict
 
 from historical_odds_processing.datamodel.constants import BETFAIR_DATETIME_FORMAT
 from historical_odds_processing.store.postgres_query_engine import PostgresQueryEngine
@@ -10,7 +11,7 @@ class PostgresInsertionEngine(PostgresQueryEngine):
     def __init__(self, user: str, password: str, databaseName: str = 'betfair_odds_data', host: str = 'localhost', port: int = 5432):
         super().__init__(user=user, password=password, databaseName=databaseName, host=host, port=port)
 
-    def insert_betting_type(self, bettingTypeName):
+    def insert_betting_type(self, bettingTypeName: str) -> int:
         existingId = self.get_betting_type_index(bettingTypeName=bettingTypeName)
         if existingId is not None:
             return existingId
@@ -24,7 +25,7 @@ class PostgresInsertionEngine(PostgresQueryEngine):
             parameters={'bettingTypeName': clean_text(text=bettingTypeName)}
         )
 
-    def insert_market_type(self, marketType):
+    def insert_market_type(self, marketType: str) -> int:
         existingId = self.get_market_type_index(marketType=marketType)
         if existingId is not None:
             return existingId
@@ -38,7 +39,7 @@ class PostgresInsertionEngine(PostgresQueryEngine):
             parameters={'marketType': clean_text(text=marketType)}
         )
 
-    def insert_market_status(self, marketStatus):
+    def insert_market_status(self, marketStatus: str) -> int:
         existingId = self.get_market_status_index(marketStatus=marketStatus)
         if existingId is not None:
             return existingId
@@ -52,7 +53,7 @@ class PostgresInsertionEngine(PostgresQueryEngine):
             parameters={'marketStatus': clean_text(text=marketStatus)}
         )
 
-    def insert_country_code(self, countryCode):
+    def insert_country_code(self, countryCode: str) -> int:
         existingId = self.get_country_code_index(countryCode=countryCode)
         if existingId is not None:
             return existingId
@@ -66,7 +67,7 @@ class PostgresInsertionEngine(PostgresQueryEngine):
             parameters={'countryCode': clean_text(text=countryCode)}
         )
 
-    def insert_timezone(self, timezone):
+    def insert_timezone(self, timezone: str) -> int:
         existingId = self.get_timezone_index(timezone=timezone)
         if existingId is not None:
             return existingId
@@ -80,7 +81,7 @@ class PostgresInsertionEngine(PostgresQueryEngine):
             parameters={'timezone': clean_text(text=timezone)}
         )
 
-    def insert_market(self, betfairMarketId, eventName, eventId, eventTypeId, bettingTypeId, marketTypeId, countryCodeId, timezoneId):
+    def insert_market(self, betfairMarketId: str, eventName: str, eventId: int, eventTypeId: int, bettingTypeId: int, marketTypeId: int, countryCodeId: int, timezoneId: int) -> int:
         existingId = self.get_market(betfairEventId=eventId, betfairMarketId=betfairMarketId)
         if existingId is not None:
             return int(existingId['id'].values[0])
@@ -99,18 +100,18 @@ class PostgresInsertionEngine(PostgresQueryEngine):
                     )
             """,
             parameters={
-                'betfairMarketId': str(betfairMarketId),
+                'betfairMarketId': betfairMarketId,
                 'eventName': clean_text(text=eventName),
-                'eventId': int(eventId),
-                'eventTypeId': int(eventTypeId),
-                'bettingType': int(bettingTypeId),
-                'marketType': int(marketTypeId),
-                'countryCode': int(countryCodeId),
-                'timezone': int(timezoneId)
+                'eventId': eventId,
+                'eventTypeId': eventTypeId,
+                'bettingType': bettingTypeId,
+                'marketType': marketTypeId,
+                'countryCode': countryCodeId,
+                'timezone': timezoneId
             }
         )
 
-    def insert_market_definition(self, betfairMarketId, eventId, unixTimestamp, marketStatusId, marketDefinition):
+    def insert_market_definition(self, betfairMarketId: str, eventId: int, unixTimestamp: int, marketStatusId: int, marketDefinition: Dict[str, Any]) -> int:
         marketStartTime = marketDefinition.get('marketTime')
         marketSuspendTime = marketDefinition.get('suspendTime')
         openDate = marketDefinition.get('openDate')
@@ -135,9 +136,9 @@ class PostgresInsertionEngine(PostgresQueryEngine):
                     )
             """,
             parameters={
-                'betfairMarketId': str(betfairMarketId),
-                'eventId': int(eventId),
-                'unixTimestamp': int(unixTimestamp),
+                'betfairMarketId': betfairMarketId,
+                'eventId': eventId,
+                'unixTimestamp': unixTimestamp,
                 'version': marketDefinition.get('version'),
                 'bspMarket': marketDefinition.get('bspMarket'),
                 'turnInPlayEnabled': marketDefinition.get('turnInPlayEnabled'),
@@ -153,14 +154,14 @@ class PostgresInsertionEngine(PostgresQueryEngine):
                 'runnersVoidable': marketDefinition.get('runnersVoidable'),
                 'numActiveRunners': marketDefinition.get('numberOfActiveRunners'),
                 'betDelay': marketDefinition.get('betDelay'),
-                'marketStatus': int(marketStatusId),
+                'marketStatus': marketStatusId,
                 'regulators': marketDefinition.get('regulators'),
                 'discountAllowed': marketDefinition.get('discountAllowed'),
                 'openDate': datetime.strptime(openDate.split('.')[0], BETFAIR_DATETIME_FORMAT) if openDate is not None else None
             }
         )
 
-    def insert_runner(self, runnerName, betfairId):
+    def insert_runner(self, runnerName: str, betfairId: int) -> int:
         existingId = self.get_runner_id_by_betfair_id(betfairRunnerId=betfairId)
         if existingId is not None:
             return existingId
@@ -173,11 +174,11 @@ class PostgresInsertionEngine(PostgresQueryEngine):
             """,
             parameters={
                 'runnerName': clean_text(text=runnerName),
-                'betfairId': int(betfairId),
+                'betfairId': betfairId,
             }
         )
 
-    def insert_runner_status(self, runnerStatus):
+    def insert_runner_status(self, runnerStatus: str) -> int:
         existingId = self.get_runner_status_id(runnerStatus=runnerStatus)
         if existingId is not None:
             return existingId
@@ -191,7 +192,7 @@ class PostgresInsertionEngine(PostgresQueryEngine):
             parameters={'status': clean_text(text=runnerStatus)}
         )
 
-    def insert_runner_status_update(self, unixTimestamp, statusId, betfairMarketId, betfairRunnerTableId):
+    def insert_runner_status_update(self, unixTimestamp: int, statusId: int, betfairMarketId: str, betfairRunnerTableId: int) -> int:
         return self.run_update_query(
             query="""
                 INSERT INTO
@@ -205,14 +206,14 @@ class PostgresInsertionEngine(PostgresQueryEngine):
                     )
             """,
             parameters={
-                'unixTimestamp': int(unixTimestamp),
-                'statusId': int(statusId),
-                'betfairMarketId': str(betfairMarketId),
-                'betfairRunnerTableId': int(betfairRunnerTableId)
+                'unixTimestamp': unixTimestamp,
+                'statusId': statusId,
+                'betfairMarketId': betfairMarketId,
+                'betfairRunnerTableId': betfairRunnerTableId
             }
         )
 
-    def insert_last_traded_price(self, unixTimestamp, betfairMarketId, betfairRunnerTableId, price):
+    def insert_last_traded_price(self, unixTimestamp: int, betfairMarketId: str, betfairRunnerTableId: int, price: float) -> int:
         return self.run_update_query(
             query="""
                 INSERT INTO
@@ -226,9 +227,9 @@ class PostgresInsertionEngine(PostgresQueryEngine):
                     )
             """,
             parameters={
-                'unixTimestamp': int(unixTimestamp),
-                'betfairMarketId': str(betfairMarketId),
-                'betfairRunnerTableId': int(betfairRunnerTableId),
-                'price': float(price)
+                'unixTimestamp': unixTimestamp,
+                'betfairMarketId': betfairMarketId,
+                'betfairRunnerTableId': betfairRunnerTableId,
+                'price': price
             }
         )

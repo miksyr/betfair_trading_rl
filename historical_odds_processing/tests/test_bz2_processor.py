@@ -90,7 +90,7 @@ class TestBZ2Processor(TestCase):
 
     def test_process_runners(self):
         runners = self.testMarketChangeData['marketDefinition']['runners']
-        self.bz2Processor.process_runners(
+        i = self.bz2Processor.process_runners(
             runners=runners,
             unixTimestamp=self.testUnixTimestamp,
             betfairMarketId=self.testBetfairMarketId,
