@@ -1,5 +1,6 @@
 import sys
 sys.path.append('../../../')
+sys.path.append('../../')
 import os
 import pandas as pd
 from pathlib import Path
