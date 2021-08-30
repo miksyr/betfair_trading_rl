@@ -1,3 +1,6 @@
+from typing import Union
+
+import pandas as pd
 from easy_postgres_engine import PostgresEngine
 
 
@@ -6,7 +9,7 @@ class PostgresQueryEngine(PostgresEngine):
     def __init__(self, user, password, databaseName='betfair_odds_data', host='localhost', port=5432):
         super().__init__(user=user, password=password, databaseName=databaseName, host=host, port=port)
 
-    def get_betting_type_index(self, bettingTypeName):
+    def get_betting_type_index(self, bettingTypeName: str) -> Union[int, None]:
         output = self.run_select_query(
             query="""
                 SELECT
@@ -25,7 +28,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'No single id found for {bettingTypeName} in tbl_betfair_betting_types')
 
-    def get_market_type_index(self, marketType):
+    def get_market_type_index(self, marketType: str) -> Union[int, None]:
         output = self.run_select_query(
             query="""
                 SELECT
@@ -44,7 +47,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'No single id found for {marketType} in tbl_betfair_market_types')
 
-    def get_market_status_index(self, marketStatus):
+    def get_market_status_index(self, marketStatus: str) -> Union[int, None]:
         output = self.run_select_query(
             query="""
                 SELECT
@@ -63,7 +66,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'No single id found for {marketStatus} in tbl_betfair_market_status')
 
-    def get_country_code_index(self, countryCode):
+    def get_country_code_index(self, countryCode: str) -> Union[int, None]:
         output = self.run_select_query(
             query="""
                 SELECT
@@ -82,7 +85,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'No single id found for {countryCode} in tbl_betfair_country_codes')
 
-    def get_timezone_index(self, timezone):
+    def get_timezone_index(self, timezone: str) -> Union[int, None]:
         output = self.run_select_query(
             query="""
                 SELECT
@@ -101,7 +104,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'No single id found for {timezone} in tbl_betfair_timezones')
 
-    def get_market(self, betfairEventId, betfairMarketId):
+    def get_market(self, betfairEventId: int, betfairMarketId: str) -> Union[int, None]:
         output = self.run_select_query(
             query="""
                 SELECT
@@ -112,7 +115,7 @@ class PostgresQueryEngine(PostgresEngine):
                     betfair_market_id = %(betfairMarketId)s AND
                     event_id = %(betfairEventId)s
             """,
-            parameters={'betfairMarketId': str(betfairMarketId), 'betfairEventId': int(betfairEventId)}
+            parameters={'betfairMarketId': betfairMarketId, 'betfairEventId': betfairEventId}
         )
         if len(output) == 0:
             return None
@@ -121,7 +124,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'Error for event info: {betfairEventId}, market: {betfairMarketId} in tbl_betfair_markets')
 
-    def get_market_id(self, eventId, marketTypeId):
+    def get_market_id(self, eventId: int, marketTypeId: int) -> Union[int, None]:
         output = self.run_select_query(
             query="""
                 SELECT
@@ -133,8 +136,8 @@ class PostgresQueryEngine(PostgresEngine):
                     market_type = %(marketTypeId)s
             """,
             parameters={
-                'eventId': int(eventId),
-                'marketTypeId': int(marketTypeId)
+                'eventId': eventId,
+                'marketTypeId': marketTypeId
             }
         )
         if len(output) == 0:
@@ -144,7 +147,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'Error for market: {marketTypeId} in event {eventId}')
 
-    def check_last_market_definition(self, betfairMarketId):
+    def check_last_market_definition(self, betfairMarketId: str) -> Union[int, None]:
         output = self.run_select_query(
             query="""
                 SELECT
@@ -157,7 +160,7 @@ class PostgresQueryEngine(PostgresEngine):
                     unix_timestamp DESC
                 LIMIT 1
             """,
-            parameters={'betfairMarketId': str(betfairMarketId)}
+            parameters={'betfairMarketId': betfairMarketId}
         )
         if len(output) == 0:
             return None
@@ -166,7 +169,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'No last market definition found for {betfairMarketId} in tbl_betfair_market_definitions')
 
-    def get_event_id_start_time(self, betfairEventId):
+    def get_event_id_start_time(self, betfairEventId: int) -> Union[int, None]:
         output = self.run_select_query(
             query="""
                 SELECT
@@ -180,7 +183,7 @@ class PostgresQueryEngine(PostgresEngine):
                 LIMIT 1
             """,
             parameters={
-                'betfairEventId': int(betfairEventId)
+                'betfairEventId': betfairEventId
             }
         )
         if len(output) == 0:
@@ -190,7 +193,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'Error getting start time for event: {betfairEventId}')
 
-    def get_runner_id_by_name(self, runnerName):
+    def get_runner_id_by_name(self, runnerName: str) -> Union[int, None]:
         output = self.run_select_query(
             query="""
                 SELECT
@@ -209,7 +212,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             return output['id'].values
 
-    def get_runner_id_by_betfair_id(self, betfairRunnerId):
+    def get_runner_id_by_betfair_id(self, betfairRunnerId: int) -> Union[int, None]:
         output = self.run_select_query(
             query="""
                 SELECT
@@ -228,7 +231,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'No single id found for {betfairRunnerId} in tbl_betfair_runners')
 
-    def get_runner_status_id(self, runnerStatus):
+    def get_runner_status_id(self, runnerStatus: str) -> Union[int, None]:
         output = self.run_select_query(
             query="""
                 SELECT
@@ -247,7 +250,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'No single id found for {runnerStatus} in tbl_betfair_runner_status')
 
-    def get_last_runner_status_info(self, betfairMarketId, betfairRunnerTableId):
+    def get_last_runner_status_info(self, betfairMarketId: str, betfairRunnerTableId: int) -> Union[pd.DataFrame, None]:
         output = self.run_select_query(
             query="""
                    SELECT
@@ -261,7 +264,7 @@ class PostgresQueryEngine(PostgresEngine):
                         unix_timestamp DESC
                     LIMIT 1
                """,
-            parameters={'betfairMarketId': str(betfairMarketId), 'betfairRunnerTableId': int(betfairRunnerTableId)}
+            parameters={'betfairMarketId': betfairMarketId, 'betfairRunnerTableId': betfairRunnerTableId}
         )
         if len(output) == 0:
             return None
@@ -270,7 +273,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'No last status found for runnerId {betfairRunnerTableId}, market: {betfairMarketId} in tbl_betfair_runner_status_updates')
 
-    def get_last_traded_price(self, betfairMarketId, betfairRunnerTableId):
+    def get_last_traded_price(self, betfairMarketId: str, betfairRunnerTableId: int) -> Union[pd.DataFrame, None]:
         output = self.run_select_query(
             query="""
                 SELECT
@@ -284,7 +287,7 @@ class PostgresQueryEngine(PostgresEngine):
                     unix_timestamp DESC
                 LIMIT 1
                """,
-            parameters={'betfairMarketId': str(betfairMarketId), 'betfairRunnerTableId': int(betfairRunnerTableId)}
+            parameters={'betfairMarketId': betfairMarketId, 'betfairRunnerTableId': betfairRunnerTableId}
         )
         if len(output) == 0:
             return None
@@ -293,7 +296,7 @@ class PostgresQueryEngine(PostgresEngine):
         else:
             raise ValueError(f'No last traded price found for runnerId {betfairRunnerTableId}, market: {betfairMarketId} in tbl_betfair_last_traded_price')
 
-    def get_odds_time_series(self, betfairMarketId, betfairRunnerTableId=None):
+    def get_odds_time_series(self, betfairMarketId: str, betfairRunnerTableId: int = None) -> pd.DataFrame:
         runnerTableIdClause = 'AND betfair_runner_table_id = %(betfairRunnerTableId)s'
         parameters = {'betfairMarketId': betfairMarketId}
         if betfairRunnerTableId is not None:

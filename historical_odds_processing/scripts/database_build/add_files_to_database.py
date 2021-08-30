@@ -1,13 +1,15 @@
 import sys
 sys.path.append('../../../')
-import fire
 import os
 import pandas as pd
-import pickle
-
-from tqdm.auto import tqdm
 from pathlib import Path
+import pickle
+from typing import List, Union
 
+import fire
+from tqdm.auto import tqdm
+
+from historical_odds_processing.datamodel.data_store_schema.database_components import Table
 from historical_odds_processing.datamodel.data_store_schema.indexes import INDEXES
 from historical_odds_processing.datamodel.data_store_schema.historical_trading_schema import ALL_HISTORICAL_SCHEMAS
 from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import Runners
@@ -17,7 +19,7 @@ from historical_odds_processing.store.postgres_insertion_engine import PostgresI
 from historical_odds_processing.utils.runner_identifier import break_runner_identifier_string
 
 
-def copy_rows_into_table(insertionEngine, table, orderedColumns, csvPaths):
+def copy_rows_into_table(insertionEngine: PostgresInsertionEngine, table: Table, orderedColumns: List[str], csvPaths: List[Union[str, Path]]) -> None:
     tableName = table.tableName
     tableColumns = ', '.join(orderedColumns)
     for csvPath in tqdm(csvPaths, position=0, desc=f'inserting {table.tableName} CSVs'):
@@ -31,7 +33,7 @@ def copy_rows_into_table(insertionEngine, table, orderedColumns, csvPaths):
         )
 
 
-def process_mapping(insertionEngine, table, pickleMappingFile):
+def process_mapping(insertionEngine: PostgresInsertionEngine, table: Table, pickleMappingFile: Union[str, Path]) -> None:
     mapping = pickle.load(open(pickleMappingFile, 'rb'))
     if isinstance(table, Runners):
         tableMap = pd.DataFrame(data=mapping.items(), columns=['combined_runner_info', 'id'])
@@ -46,19 +48,19 @@ def process_mapping(insertionEngine, table, pickleMappingFile):
     copy_rows_into_table(insertionEngine=insertionEngine, table=table, orderedColumns=list(tableMap.columns), csvPaths=[csvOutputPath])
 
 
-def add_files_to_database(insertionEngine, outputDirectory):
+def add_files_to_database(insertionEngine: PostgresInsertionEngine, inputDirectory: Union[str, Path]) -> None:
     for table in ALL_MAPPING_SCHEMAS:
-        mappingFilePath = list(Path(outputDirectory).glob(f'{table.savingIdentifier}*final_mapping.pkl'))
+        mappingFilePath = list(Path(inputDirectory).glob(f'{table.savingIdentifier}*final_mapping.pkl'))
         if len(mappingFilePath) != 1:
             raise Exception(f'Check mapping file for {table.tableName}')
         process_mapping(insertionEngine=insertionEngine, table=table, pickleMappingFile=mappingFilePath[0])
 
     for table in ALL_HISTORICAL_SCHEMAS:
-        allCsvPaths = list(Path(f'{outputDirectory}/remapped_files').glob(f'**/{table.savingIdentifier}*.csv'))
+        allCsvPaths = list(Path(f'{inputDirectory}/remapped_files').glob(f'**/{table.savingIdentifier}*.csv'))
         copy_rows_into_table(insertionEngine=insertionEngine, table=table, orderedColumns=table.get_column_names(), csvPaths=allCsvPaths)
 
 
-def add_foreign_keys(insertionEngine):
+def add_foreign_keys(insertionEngine: PostgresInsertionEngine) -> None:
     fkQuery = """
         ALTER TABLE {tableName} 
         ADD CONSTRAINT {constraintName} {foreignKeySQL};
@@ -74,22 +76,22 @@ def add_foreign_keys(insertionEngine):
             )
 
 
-def add_indexes(insertionEngine):
+def add_indexes(insertionEngine: PostgresInsertionEngine) -> None:
     for index in tqdm(INDEXES, desc='adding indexes'):
         insertionEngine.create_index(tableName=index['table'], column=index['column'])
 
 
-def add_views(insertionEngine):
+def add_views(insertionEngine: PostgresInsertionEngine) -> None:
     for view in tqdm(ALL_VIEWS, desc='adding views'):
         insertionEngine.create_table(schema=view)
 
 
-def main(outputDirectory):
+def main(inputDirectory: Union[str, Path]) -> None:
     insertionEngine = PostgresInsertionEngine(
         user=os.environ['POSTGRES_USERNAME'],
         password=os.environ['POSTGRES_PASSWORD']
     )
-    add_files_to_database(insertionEngine=insertionEngine, outputDirectory=outputDirectory)
+    add_files_to_database(insertionEngine=insertionEngine, inputDirectory=inputDirectory)
     add_foreign_keys(insertionEngine=insertionEngine)
     add_indexes(insertionEngine=insertionEngine)
     add_views(insertionEngine=insertionEngine)

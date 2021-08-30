@@ -1,6 +1,5 @@
 import csv
-
-from typing import Sequence
+from typing import Any, Dict, Sequence
 
 
 class CSVOutputHandler:
@@ -12,8 +11,8 @@ class CSVOutputHandler:
         self.file = open(self.fileName, 'at')
         self.csv = csv.DictWriter(self.file, fieldnames=tableFields, escapechar='\\', quotechar='"', quoting=csv.QUOTE_ALL)
 
-    def add(self, data):
+    def add(self, data: Dict[Any, Any]) -> None:
         self.csv.writerow(data)
 
-    def close(self):
+    def close(self) -> None:
         self.file.close()

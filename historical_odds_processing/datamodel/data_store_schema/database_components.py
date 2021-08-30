@@ -1,10 +1,38 @@
+from typing import Dict, List
+
+
+class ForeignKey:
+
+    def __init__(self, columnName: str, tableReferenced: str, referenceColumn: str):
+        self.columnName = columnName
+        self.tableReferenced = tableReferenced
+        self.referenceColumn = referenceColumn
+
+    @property
+    def constraintName(self) -> str:
+        return f'{self.columnName}'
+
+    def __repr__(self):
+        return f'FOREIGN KEY ({self.columnName}) REFERENCES {self.tableReferenced} ({self.referenceColumn})'
+
+    def __str__(self):
+        return self.__repr__()
+
+    def get_foreign_key_sql(self, tableName: str) -> str:
+        return f"""
+            ALTER TABLE {tableName} 
+            ADD CONSTRAINT {self.columnName}
+            FOREIGN KEY ({self.columnName}) REFERENCES {self.tableReferenced} ({self.referenceColumn});
+        """
+
+
 class Table:
 
     def __init__(self):
         self.tableName = None
         self.columns = None
 
-    def create_table_sql(self):
+    def create_table_sql(self) -> str:
         return f"""
             CREATE TABLE IF NOT EXISTS {self.tableName} 
             (
@@ -13,10 +41,10 @@ class Table:
             );
         """
 
-    def foreign_key_constraints(self):
+    def foreign_key_constraints(self) -> List[ForeignKey]:
         return []
 
-    def get_indices(self):
+    def get_indices(self) -> List[Dict[str, str]]:
         return [
             {
                 'table': self.tableName,
@@ -25,7 +53,7 @@ class Table:
             for column in self.columns if column.isIndex
         ]
 
-    def get_column_names(self):
+    def get_column_names(self) -> List[str]:
         return [col.name for col in self.columns]
 
 
@@ -42,28 +70,3 @@ class Column:
 
     def __str__(self):
         return self.__repr__()
-
-
-class ForeignKey:
-
-    def __init__(self, columnName: str, tableReferenced: str, referenceColumn: str):
-        self.columnName = columnName
-        self.tableReferenced = tableReferenced
-        self.referenceColumn = referenceColumn
-
-    @property
-    def constraintName(self):
-        return f'{self.columnName}'
-
-    def __repr__(self):
-        return f'FOREIGN KEY ({self.columnName}) REFERENCES {self.tableReferenced} ({self.referenceColumn})'
-
-    def __str__(self):
-        return self.__repr__()
-
-    def get_foreign_key_sql(self, tableName):
-        return f"""
-            ALTER TABLE {tableName} 
-            ADD CONSTRAINT {self.columnName}
-            FOREIGN KEY ({self.columnName}) REFERENCES {self.tableReferenced} ({self.referenceColumn});
-        """

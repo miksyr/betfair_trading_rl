@@ -1,3 +1,5 @@
+from typing import List
+
 from historical_odds_processing.datamodel.data_store_schema.database_components import Column
 from historical_odds_processing.datamodel.data_store_schema.database_components import ForeignKey
 from historical_odds_processing.datamodel.data_store_schema.database_components import Table
@@ -28,7 +30,7 @@ class MarketInfo(Table):
             Column(name='timezone', dataType='INTEGER'),
         ]
 
-    def foreign_key_constraints(self):
+    def foreign_key_constraints(self) -> List[ForeignKey]:
         return [
             ForeignKey(columnName='betting_type', tableReferenced=BettingTypes().tableName, referenceColumn='id'),
             ForeignKey(columnName='market_type', tableReferenced=MarketTypes().tableName, referenceColumn='id'),
@@ -36,11 +38,11 @@ class MarketInfo(Table):
             ForeignKey(columnName='timezone', tableReferenced=Timezones().tableName, referenceColumn='id'),
         ]
 
-    def get_column_names(self):
+    def get_column_names(self) -> List[str]:
         return [col.name for col in self.columns if col.name != 'id']
 
     @property
-    def savingIdentifier(self):
+    def savingIdentifier(self) -> str:
         return OutputFilenames.MARKET_INFO
 
 
@@ -75,16 +77,16 @@ class MarketDefinitions(Table):
             Column(name='open_date', dataType='TIMESTAMP'),
         ]
 
-    def foreign_key_constraints(self):
+    def foreign_key_constraints(self) -> List[ForeignKey]:
         return [
             ForeignKey(columnName='market_status', tableReferenced=MarketStatus().tableName, referenceColumn='id'),
         ]
 
-    def get_column_names(self):
+    def get_column_names(self) -> List[str]:
         return [col.name for col in self.columns if col.name != 'id']
 
     @property
-    def savingIdentifier(self):
+    def savingIdentifier(self) -> str:
         return OutputFilenames.MARKET_DEFINITIONS
 
 
@@ -102,17 +104,17 @@ class RunnerStatusUpdates(Table):
             Column(name='event_id', dataType='BIGINT'),
         ]
 
-    def foreign_key_constraints(self):
+    def foreign_key_constraints(self) -> List[ForeignKey]:
         return [
             ForeignKey(columnName='status_id', tableReferenced=RunnerStatus().tableName, referenceColumn='id'),
             ForeignKey(columnName='betfair_runner_table_id', tableReferenced=Runners().tableName, referenceColumn='id'),
         ]
 
-    def get_column_names(self):
+    def get_column_names(self) -> List[str]:
         return [col.name for col in self.columns if col.name != 'id']
 
     @property
-    def savingIdentifier(self):
+    def savingIdentifier(self) -> str:
         return OutputFilenames.RUNNER_STATUS_UPDATES
 
 
@@ -130,16 +132,16 @@ class LastTradedPrice(Table):
             Column(name='price', dataType='FLOAT'),
         ]
 
-    def foreign_key_constraints(self):
+    def foreign_key_constraints(self) -> List[ForeignKey]:
         return [
             ForeignKey(columnName='betfair_runner_table_id', tableReferenced=Runners().tableName, referenceColumn='id'),
         ]
 
-    def get_column_names(self):
+    def get_column_names(self) -> List[str]:
         return [col.name for col in self.columns if col.name != 'id']
 
     @property
-    def savingIdentifier(self):
+    def savingIdentifier(self) -> str:
         return OutputFilenames.LAST_TRADED_PRICE
 
 

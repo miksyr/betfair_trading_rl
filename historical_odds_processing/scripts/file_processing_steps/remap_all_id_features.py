@@ -1,8 +1,9 @@
-import fire
 import numpy as np
-import pickle
-
 from pathlib import Path
+import pickle
+from typing import Dict, List, Tuple, Union
+
+import fire
 from tqdm.auto import tqdm
 
 from historical_odds_processing.store.db_creation.csv_remapper import CSVRemapper
@@ -11,7 +12,7 @@ from historical_odds_processing.utils.batching import get_data_batches, run_mult
 from historical_odds_processing.utils.paths import get_path
 
 
-def remap_csv(args):
+def remap_csv(args: Tuple[List[Union[Path, str]], Dict[str, str], str, int, Union[str, Path]]) -> None:
     filesToRemap, mappingDict, fileType, chunkSize, outputDirectory = args
     loadedMaps = {mappingName: pickle.load(open(mappingFileLocation, 'rb')) for mappingName, mappingFileLocation in mappingDict.items()}
     for csvFile in tqdm(filesToRemap, desc=f'remapping {fileType}'):
@@ -24,7 +25,7 @@ def remap_csv(args):
         csvRemapper.process_csv()
 
 
-def remap_market_info(numThreads, chunkSize, outputDirectory):
+def remap_market_info(numThreads: int, chunkSize: int, outputDirectory: Union[str, Path]) -> None:
     mappingDict = {
         'betting_type': f'{outputDirectory}/{OutputFilenames.BETTING_TYPES}_final_mapping.pkl',
         'market_type': f'{outputDirectory}/{OutputFilenames.MARKET_TYPES}_final_mapping.pkl',
@@ -40,7 +41,7 @@ def remap_market_info(numThreads, chunkSize, outputDirectory):
     )
 
 
-def remap_market_definitions(numThreads, chunkSize, outputDirectory):
+def remap_market_definitions(numThreads: int, chunkSize: int, outputDirectory: Union[str, Path]) -> None:
     mappingDict = {
         'market_status': f'{outputDirectory}/{OutputFilenames.MARKET_STATUS}_final_mapping.pkl'
     }
@@ -53,7 +54,7 @@ def remap_market_definitions(numThreads, chunkSize, outputDirectory):
     )
 
 
-def remap_runner_status_updates(numThreads, chunkSize, outputDirectory):
+def remap_runner_status_updates(numThreads: int, chunkSize: int, outputDirectory: Union[str, Path]) -> None:
     mappingDict = {
         'status_id': f'{outputDirectory}/{OutputFilenames.RUNNER_STATUS}_final_mapping.pkl',
         'betfair_runner_table_id': f'{outputDirectory}/{OutputFilenames.RUNNERS}_final_mapping.pkl'
@@ -67,7 +68,7 @@ def remap_runner_status_updates(numThreads, chunkSize, outputDirectory):
     )
 
 
-def remap_last_traded_price(numThreads, chunkSize, outputDirectory):
+def remap_last_traded_price(numThreads: int, chunkSize: int, outputDirectory: Union[str, Path]) -> None:
     mappingDict = {
         'betfair_runner_table_id': f'{outputDirectory}/{OutputFilenames.RUNNERS}_final_mapping.pkl'
     }
@@ -80,7 +81,7 @@ def remap_last_traded_price(numThreads, chunkSize, outputDirectory):
     )
 
 
-def remap_all_id_features(numThreads, outputDirectory, chunkSize=250000):
+def remap_all_id_features(numThreads: int, outputDirectory: Union[str, Path], chunkSize: int = 250000) -> None:
     remap_market_info(numThreads=numThreads, chunkSize=chunkSize, outputDirectory=outputDirectory)
     remap_market_definitions(numThreads=numThreads, chunkSize=chunkSize, outputDirectory=outputDirectory)
     remap_runner_status_updates(numThreads=numThreads, chunkSize=chunkSize, outputDirectory=outputDirectory)

@@ -90,12 +90,15 @@ class TestBZ2Processor(TestCase):
 
     def test_process_runners(self):
         runners = self.testMarketChangeData['marketDefinition']['runners']
-        self.bz2Processor.process_runners(
+        i = self.bz2Processor.process_runners(
             runners=runners,
             unixTimestamp=self.testUnixTimestamp,
             betfairMarketId=self.testBetfairMarketId,
             eventId=self.testMarketChangeData['marketDefinition']['eventId']
         )
+        print()
+        print(i, type(i))
+        print()
         self.assertEqual(self.bz2Processor.runners, {'Under 2.5 Goals__47972', 'Over 2.5 Goals__47973'})
         self.assertEqual(self.bz2Processor.runnerStatus, {'ACTIVE', 'INACTIVE'})
         expectedData = {

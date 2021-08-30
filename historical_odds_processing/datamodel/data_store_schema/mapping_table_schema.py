@@ -14,7 +14,7 @@ class BettingTypes(Table):
         ]
 
     @property
-    def savingIdentifier(self):
+    def savingIdentifier(self) -> str:
         return OutputFilenames.BETTING_TYPES
 
 
@@ -29,7 +29,7 @@ class CountryCodes(Table):
         ]
 
     @property
-    def savingIdentifier(self):
+    def savingIdentifier(self) -> str:
         return OutputFilenames.COUNTRY_CODES
 
 
@@ -44,7 +44,7 @@ class MarketStatus(Table):
         ]
 
     @property
-    def savingIdentifier(self):
+    def savingIdentifier(self) -> str:
         return OutputFilenames.MARKET_STATUS
 
 
@@ -59,7 +59,7 @@ class MarketTypes(Table):
         ]
 
     @property
-    def savingIdentifier(self):
+    def savingIdentifier(self) -> str:
         return OutputFilenames.MARKET_TYPES
 
 
@@ -75,7 +75,7 @@ class Runners(Table):
         ]
 
     @property
-    def savingIdentifier(self):
+    def savingIdentifier(self) -> str:
         return OutputFilenames.RUNNERS
 
 
@@ -90,7 +90,7 @@ class RunnerStatus(Table):
         ]
 
     @property
-    def savingIdentifier(self):
+    def savingIdentifier(self) -> str:
         return OutputFilenames.RUNNER_STATUS
 
 
@@ -105,7 +105,7 @@ class Timezones(Table):
         ]
 
     @property
-    def savingIdentifier(self):
+    def savingIdentifier(self) -> str:
         return OutputFilenames.TIMEZONES
 
 
