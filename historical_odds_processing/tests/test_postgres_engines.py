@@ -159,8 +159,8 @@ class TestPostgresEngine(TestCase):
         self.assertIsNone(badQuery)
 
     def test_market(self):
-        MARKET_1 = {'betfairMarketId': 1, 'eventName': 'testEvent1', 'eventId': 2, 'eventTypeId': 3, 'bettingTypeId': 4, 'marketTypeId': 5, 'countryCodeId': 6, 'timezoneId': 7}
-        MARKET_2 = {'betfairMarketId': 2, 'eventName': 'testEvent2', 'eventId': 3, 'eventTypeId': 4, 'bettingTypeId': 5, 'marketTypeId': 6, 'countryCodeId': 7, 'timezoneId': 8}
+        MARKET_1 = {'betfairMarketId': '1', 'eventName': 'testEvent1', 'eventId': 2, 'eventTypeId': 3, 'bettingTypeId': 4, 'marketTypeId': 5, 'countryCodeId': 6, 'timezoneId': 7}
+        MARKET_2 = {'betfairMarketId': '2', 'eventName': 'testEvent2', 'eventId': 3, 'eventTypeId': 4, 'bettingTypeId': 5, 'marketTypeId': 6, 'countryCodeId': 7, 'timezoneId': 8}
 
         insertedId1 = self.dbEngine.insert_market(
             betfairMarketId=MARKET_1['betfairMarketId'],
@@ -210,7 +210,7 @@ class TestPostgresEngine(TestCase):
 
     def test_market_definition(self):
         TEST_MARKET_DEFINITION = {
-            'betfairMarketId': 1.000,
+            'betfairMarketId': '1.000',
             'eventId': 10101,
             'unixTimestamp': 1000,
             'marketStatus': 2,
@@ -306,8 +306,8 @@ class TestPostgresEngine(TestCase):
         self.assertEqual(queryResult2, 2)
 
     def test_runner_status_update(self):
-        RUNNER_STATUS_UPDATE_1 = {'timestamp': 1, 'statusId': 2, 'betfairMarketId': 3, 'betfairRunnerTableId': 4}
-        RUNNER_STATUS_UPDATE_2 = {'timestamp': 5, 'statusId': 6, 'betfairMarketId': 7, 'betfairRunnerTableId': 8}
+        RUNNER_STATUS_UPDATE_1 = {'timestamp': 1, 'statusId': 2, 'betfairMarketId': '3', 'betfairRunnerTableId': 4}
+        RUNNER_STATUS_UPDATE_2 = {'timestamp': 5, 'statusId': 6, 'betfairMarketId': '7', 'betfairRunnerTableId': 8}
         insertedId1 = self.dbEngine.insert_runner_status_update(
             unixTimestamp=RUNNER_STATUS_UPDATE_1['timestamp'],
             statusId=RUNNER_STATUS_UPDATE_1['statusId'],
@@ -341,8 +341,8 @@ class TestPostgresEngine(TestCase):
         self.assertEqual(queryResult2['status_id'].values[0], RUNNER_STATUS_UPDATE_2['statusId'])
 
     def test_last_traded_price(self):
-        LAST_TRADED_PRICE_1 = {'timestamp': 1, 'price': 2, 'betfairMarketId': 3, 'betfairRunnerTableId': 4}
-        LAST_TRADED_PRICE_2 = {'timestamp': 5, 'price': 6, 'betfairMarketId': 7, 'betfairRunnerTableId': 8}
+        LAST_TRADED_PRICE_1 = {'timestamp': 1, 'price': 2, 'betfairMarketId': '3', 'betfairRunnerTableId': 4}
+        LAST_TRADED_PRICE_2 = {'timestamp': 5, 'price': 6, 'betfairMarketId': '7', 'betfairRunnerTableId': 8}
         insertedId1 = self.dbEngine.insert_last_traded_price(
             unixTimestamp=LAST_TRADED_PRICE_1['timestamp'],
             betfairMarketId=LAST_TRADED_PRICE_1['betfairMarketId'],

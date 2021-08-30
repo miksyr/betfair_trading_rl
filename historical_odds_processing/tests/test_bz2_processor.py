@@ -96,9 +96,6 @@ class TestBZ2Processor(TestCase):
             betfairMarketId=self.testBetfairMarketId,
             eventId=self.testMarketChangeData['marketDefinition']['eventId']
         )
-        print()
-        print(i, type(i))
-        print()
         self.assertEqual(self.bz2Processor.runners, {'Under 2.5 Goals__47972', 'Over 2.5 Goals__47973'})
         self.assertEqual(self.bz2Processor.runnerStatus, {'ACTIVE', 'INACTIVE'})
         expectedData = {
