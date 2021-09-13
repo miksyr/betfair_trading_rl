@@ -10,7 +10,7 @@ from trading.datamodel.betting_state.over_under_betting_state import (
 
 class TestOverUnderBettingState(TestCase):
     def __init__(self, methodName="runTest"):
-        super(TestOverUnderBettingState, self).__init__(methodName=methodName)
+        super().__init__(methodName=methodName)
         self.defaultOdds = [2.0, 2.5]
         self.updatedOdds = [1.66, 10.0]
 

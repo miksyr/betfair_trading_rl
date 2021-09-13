@@ -10,7 +10,7 @@ from trading.datamodel.betting_state.match_odds_betting_state import (
 
 class TestMatchOddsBettingState(TestCase):
     def __init__(self, methodName="runTest"):
-        super(TestMatchOddsBettingState, self).__init__(methodName=methodName)
+        super().__init__(methodName=methodName)
         self.defaultHADOdds = [2.0, 2.5, 10.0]
         self.updatedHADOdds = [1.66, 10.0, 3.33]
 

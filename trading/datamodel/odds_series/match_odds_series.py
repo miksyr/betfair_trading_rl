@@ -29,8 +29,7 @@ class MatchOddsSeries(BaseOddsSeries):
     def _get_odds_vector(self) -> np.array:
         return np.array((self.lastHomeOdds, self.lastAwayOdds, self.lastDrawOdds))
 
-    def _reset(self) -> None:
-        if not self.doCycle:
-            self.lastHomeOdds = 0
-            self.lastAwayOdds = 0
-            self.lastDrawOdds = 0
+    def _reset_last_odds(self) -> None:
+        self.lastHomeOdds = 0
+        self.lastAwayOdds = 0
+        self.lastDrawOdds = 0

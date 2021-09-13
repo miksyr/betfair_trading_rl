@@ -8,9 +8,9 @@ from trading.datamodel.odds_series.match_odds_series import MatchOddsSeries
 from trading.datamodel.outcomes.match_outcome import MatchOutcome
 
 
-class TestMatchOddsBettingState(TestCase):
+class TestMatchOddsSeries(TestCase):
     def __init__(self, methodName="runTest"):
-        super(TestMatchOddsBettingState, self).__init__(methodName=methodName)
+        super().__init__(methodName=methodName)
         self.timestamps = [1514806169, 1514806169, 1514806169, 1514790730, 1514806395, 1514806400]
         self.prices = [1.86, 4.30, 3.85, 1.97, 2.00, 4.00]
         self.sortedValidTimestamps = sorted(set(self.timestamps))

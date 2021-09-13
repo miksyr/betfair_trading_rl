@@ -78,8 +78,9 @@ class BaseOddsSeries(ABC):
     def reset(self) -> None:
         self.currentStepNumber = 0
         self.episodeEnded = False
-        self._reset()
+        if not self.doCycle:
+            self._reset_last_odds()
 
     @abstractmethod
-    def _reset(self) -> None:
+    def _reset_last_odds(self) -> None:
         pass

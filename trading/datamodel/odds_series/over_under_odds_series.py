@@ -21,15 +21,17 @@ class OverUnderOddsSeries(BaseOddsSeries):
 
     def update_step(self, groupedDataframeUpdate: pd.DataFrame) -> None:
         for _, row in groupedDataframeUpdate.iterrows():
-            runnerName = row["runner_name"]
-            if ("Over" in runnerName) or ("over" in runnerName):
+            runnerName = row["runner_name"].lower()
+            if "over" in runnerName:
                 self.lastOverOdds = row["price"]
-            elif ("Under" in runnerName) or ("under" in runnerName):
+            elif "under" in runnerName:
                 self.lastUnderOdds = row["price"]
+            else:
+                raise ValueError(f'Runner name: "{runnerName}" not recognised')
 
     def _get_odds_vector(self) -> np.array:
         return np.array((self.lastOverOdds, self.lastUnderOdds))
 
-    def _reset(self) -> None:
+    def _reset_last_odds(self) -> None:
         self.lastOverOdds = 0
         self.lastUnderOdds = 0
