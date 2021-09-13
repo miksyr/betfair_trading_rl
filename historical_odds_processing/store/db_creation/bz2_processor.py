@@ -13,7 +13,7 @@ from historical_odds_processing.datamodel.constants import BETFAIR_MARKET_DEFINI
 from historical_odds_processing.datamodel.constants import BETFAIR_RUNNER_CHANGE_TAG
 from historical_odds_processing.store.db_creation.csv_output_handler import CSVOutputHandler
 from historical_odds_processing.store.db_creation.output_filenames import OutputFilenames
-from historical_odds_processing.utils.runner_identifier import get_runner_identifier
+from utils.runner_identifier import get_runner_identifier
 
 
 class BZ2Processor:

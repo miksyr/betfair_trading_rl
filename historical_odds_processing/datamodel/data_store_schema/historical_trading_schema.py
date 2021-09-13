@@ -1,15 +1,15 @@
 from typing import List
 
-from historical_odds_processing.datamodel.data_store_schema.database_components import Column
-from historical_odds_processing.datamodel.data_store_schema.database_components import ForeignKey
-from historical_odds_processing.datamodel.data_store_schema.database_components import Table
-from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import BettingTypes
-from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import CountryCodes
-from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import MarketStatus
-from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import MarketTypes
-from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import Runners
-from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import RunnerStatus
-from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import Timezones
+from historical_odds_processing.datamodel.data_store_schema.database_components import Column, ForeignKey, Table
+from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import (
+    BettingTypes,
+    CountryCodes,
+    MarketStatus,
+    MarketTypes,
+    Runners,
+    RunnerStatus,
+    Timezones,
+)
 from historical_odds_processing.store.db_creation.output_filenames import OutputFilenames
 
 

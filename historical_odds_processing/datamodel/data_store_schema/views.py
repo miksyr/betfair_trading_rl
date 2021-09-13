@@ -5,8 +5,11 @@ VW_BETFAIR_MARKETS = """
             tbl_betfair_markets.event_id as event_id,
             tbl_betfair_markets.event_name as event_name,
             tbl_betfair_betting_types.betting_type_name as betting_type,
+            tbl_betfair_betting_types.id as betting_type_id,
             tbl_betfair_market_types.market_type as market_type,
+            tbl_betfair_market_types.id as market_type_id,
             tbl_betfair_country_codes.country_code as country_code,
+            tbl_betfair_country_codes.id as country_code_id,
             tbl_betfair_timezones.timezone as timezone
         FROM
             tbl_betfair_markets
@@ -36,12 +39,15 @@ VW_LAST_TRADED_BETS = """
             tbl_betfair_runners.betfair_id as runner_betfair_id,
             tbl_betfair_last_traded_price.unix_timestamp as unix_timestamp,
             tbl_betfair_last_traded_price.betfair_market_id as betfair_market_id,
+            vw_betfair_markets.market_type as market_type,
+            vw_betfair_markets.market_type_id as market_type_id,
+            vw_betfair_markets.event_name as event_name,
             tbl_betfair_last_traded_price.event_id as event_id,
             tbl_betfair_last_traded_price.price as price,
-            vw_betfair_markets.event_name as event_name,
             vw_betfair_markets.betting_type as betting_type,
-            vw_betfair_markets.market_type as market_type,
+            vw_betfair_markets.betting_type_id as betting_type_id,
             vw_betfair_markets.country_code as country_code,
+            vw_betfair_markets.country_code_id as country_code_id,
             vw_betfair_markets.timezone as timezone
         FROM
             tbl_betfair_last_traded_price

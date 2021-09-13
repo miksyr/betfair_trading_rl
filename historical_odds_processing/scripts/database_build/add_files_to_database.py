@@ -18,7 +18,7 @@ from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema
 from historical_odds_processing.datamodel.data_store_schema.mapping_table_schema import ALL_MAPPING_SCHEMAS
 from historical_odds_processing.datamodel.data_store_schema.views import ALL_VIEWS
 from historical_odds_processing.store.postgres_insertion_engine import PostgresInsertionEngine
-from historical_odds_processing.utils.runner_identifier import break_runner_identifier_string
+from utils.runner_identifier import break_runner_identifier_string
 
 
 def copy_rows_into_table(

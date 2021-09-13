@@ -8,8 +8,8 @@ from tqdm.auto import tqdm
 
 from historical_odds_processing.store.db_creation.csv_remapper import CSVRemapper
 from historical_odds_processing.store.db_creation.output_filenames import OutputFilenames
-from historical_odds_processing.utils.batching import get_data_batches, run_multiprocessing
-from historical_odds_processing.utils.paths import get_path
+from utils.batching import get_data_batches, run_multiprocessing
+from utils.paths import get_path
 
 
 def remap_csv(args: Tuple[List[Union[Path, str]], Dict[str, str], str, int, Union[str, Path]]) -> None:

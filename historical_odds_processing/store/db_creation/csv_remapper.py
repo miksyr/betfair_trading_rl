@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 import pandas as pd
 
-from historical_odds_processing.utils.paths import get_path
+from utils.paths import get_path
 
 
 class CSVRemapper:

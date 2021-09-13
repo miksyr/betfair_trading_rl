@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 from historical_odds_processing.datamodel.constants import BETFAIR_DATETIME_FORMAT
 from historical_odds_processing.store.postgres_query_engine import PostgresQueryEngine
-from historical_odds_processing.utils.text_processing import clean_text
+from utils.text_processing import clean_text
 
 
 class PostgresInsertionEngine(PostgresQueryEngine):
