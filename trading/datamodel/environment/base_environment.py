@@ -1,14 +1,16 @@
+from abc import ABC, abstractmethod
+from typing import Union
+
 import numpy as np
 from tf_agents.environments.py_environment import PyEnvironment
 from tf_agents.specs.array_spec import BoundedArraySpec
 from tf_agents.trajectories import time_step, TimeStep
 
-from trading.datamodel.constants import ODDS_NORMALISATION_CONSTANT
 from trading.datamodel.discounted_reward import DiscountedReward
 from trading.datamodel.odds_series.base_odds_series import BaseOddsSeries
 
 
-class BaseEnvironment(PyEnvironment):
+class BaseEnvironment(PyEnvironment, ABC):
     def __init__(
         self,
         oddSeries: BaseOddsSeries,
@@ -27,6 +29,11 @@ class BaseEnvironment(PyEnvironment):
         self.actions = None
         self.actionsNameToIdMap = None
         self._state = None
+        self.oddsNormalisationConstant = self._get_odds_normalisation_constant()
+
+    @abstractmethod
+    def _get_odds_normalisation_constant(self) -> Union[int, float]:
+        pass
 
     def get_state_observation(self) -> np.array:
         return self._state.get_state_observation()
@@ -52,14 +59,14 @@ class BaseEnvironment(PyEnvironment):
                 [self._state.get_state_observation(), self.oddSeries.get_step()],
                 axis=-1,
             )
-            / ODDS_NORMALISATION_CONSTANT
+            / self.oddsNormalisationConstant
         )
 
     def _step(self, action: int) -> TimeStep:
         nextStep = self.oddSeries.get_step()
         currentTimeStep = self.current_time_step()
         numOdds = len(self.actionsNameToIdMap) - 1
-        offeredOdds = currentTimeStep.observation[-numOdds:] * ODDS_NORMALISATION_CONSTANT
+        offeredOdds = currentTimeStep.observation[-numOdds:] * self.oddsNormalisationConstant
 
         if self.oddSeries.episodeEnded:
             reward = self._state.calculate_return_for_discounted_rl(outcomeVector=self.oddSeries.get_end_outcome_vector())
@@ -72,13 +79,13 @@ class BaseEnvironment(PyEnvironment):
                     ],
                     axis=-1,
                 )
-                / ODDS_NORMALISATION_CONSTANT,
+                / self.oddsNormalisationConstant,
                 reward=reward,
             )
 
         if action == self.actionsNameToIdMap[self.actions.DO_NOTHING]:
             return time_step.transition(
-                observation=np.concatenate([self.get_state_observation(), nextStep], axis=-1) / ODDS_NORMALISATION_CONSTANT,
+                observation=np.concatenate([self.get_state_observation(), nextStep], axis=-1) / self.oddsNormalisationConstant,
                 reward=self.inactionPenalty,
                 discount=0.0,
             )
@@ -87,10 +94,11 @@ class BaseEnvironment(PyEnvironment):
             rewardClass = self._action_processing(action=action, offeredOdds=offeredOdds)
 
         return time_step.transition(
-            observation=np.concatenate([self.get_state_observation(), nextStep], axis=-1) / ODDS_NORMALISATION_CONSTANT,
+            observation=np.concatenate([self.get_state_observation(), nextStep], axis=-1) / self.oddsNormalisationConstant,
             reward=rewardClass.reward,
             discount=rewardClass.discount,
         )
 
+    @abstractmethod
     def _action_processing(self, action: int, offeredOdds: np.array) -> DiscountedReward:
         raise NotImplementedError(f"{self.__class__.__name__} must implement `_action_processing` function")

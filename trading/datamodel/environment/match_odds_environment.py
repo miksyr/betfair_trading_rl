@@ -1,10 +1,11 @@
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 import tensorflow as tf
 
 from trading.datamodel.actions.match_odds_actions import MatchOddsActions
 from trading.datamodel.betting_state.match_odds_betting_state import MatchOddsBettingState
+from trading.datamodel.constants import MATCH_ODDS_NORMALISATION_CONSTANT
 from trading.datamodel.discounted_reward import DiscountedReward
 from trading.datamodel.environment.base_environment import BaseEnvironment
 from trading.datamodel.odds_series.match_odds_series import MatchOddsSeries
@@ -27,6 +28,9 @@ class MatchOddsEnvironment(BaseEnvironment):
         self.actions = actions or MatchOddsActions()
         self.actionsNameToIdMap = self.actions.get_action_name_to_id_mapping()
         self._state = MatchOddsBettingState(discountFactor=rewardDiscountFactor, onlyPositiveCashout=onlyPositiveCashout)
+
+    def _get_odds_normalisation_constant(self) -> Union[int, float]:
+        return MATCH_ODDS_NORMALISATION_CONSTANT
 
     @staticmethod
     def get_action_mask(observation):
