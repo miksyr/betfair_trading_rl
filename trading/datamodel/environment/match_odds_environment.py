@@ -33,18 +33,6 @@ class MatchOddsEnvironment(BaseEnvironment):
     def _get_odds_normalisation_constant(self) -> Union[int, float]:
         return MATCH_ODDS_NORMALISATION_CONSTANT
 
-    @staticmethod
-    def get_action_mask(observation: tf_agents.specs.BoundedTensorSpec):
-        # required by tf-agents to mask picking the same action twice in a row
-        # only takes the first 6 entries of observation (the betting state) and then outputs the action mask for next step
-        print()
-        print(observation)
-        print()
-        actionMask = observation[:, :6] == 0
-        noActionFlags = tf.ones_like(input=actionMask)[:, :1]
-        fullActionMask = tf.concat((noActionFlags, actionMask), axis=-1)
-        return observation, fullActionMask
-
     def _action_processing(self, action: int, offeredOdds: np.array) -> DiscountedReward:
         if action == self.actionsNameToIdMap[self.actions.HOME_BACK]:
             return self._state.place_home_back_bet(odds=offeredOdds[0])

@@ -1,4 +1,5 @@
 from shutil import rmtree
+from pathlib import Path
 
 import tensorflow as tf
 from tf_agents.agents.dqn.dqn_agent import DqnAgent
@@ -59,7 +60,6 @@ class TestReinforcementModel(TestCase):
             td_errors_loss_fn=element_wise_squared_loss,
             gradient_clipping=10.0,
             train_step_counter=trainStepCounter,
-            observation_and_action_constraint_splitter=self.matchOddsEnvironment.get_action_mask,
         )
         replayBuffer = TFUniformReplayBuffer(
             data_spec=agent.collect_data_spec, batch_size=trainingEnvironment.batch_size, max_length=int(1e2)
@@ -79,31 +79,57 @@ class TestReinforcementModel(TestCase):
         )
 
     def tearDown(self):
-        # rmtree(path=self.testSavePath)
-        pass
+        rmtree(path=self.testSavePath)
 
     def test_initialise(self):
-        # TODO(MIKE): need to fix action spec mask function - try and pass in tuple as observation, to make processing easier?
         self.model.initialize()
         self.assertIsNotNone(self.model.trainingDataset)
         self.assertIsNotNone(self.model.policySaver)
         self.assertIsNotNone(self.model.trainingSummaryWriter)
         self.assertIsNotNone(self.model.evaluationSummaryWriter)
 
-    # def test_train(self):
-    #     pass
-    #
-    # def test_evaluate(self):
-    #     pass
-    #
-    # def test_compute_return_for_episodes(self):
-    #     pass
-    #
-    # def test_produce_metrics(self):
-    #     pass
-    #
-    # def test_checkpoint(self):
-    #     pass
-    #
-    # def test_train_model(self):
-    #     pass
+    def test_train(self):
+        self.model.initialize()
+        loss = self.model.train()
+        self.assertNotEqual(self.model.globalStep, 0)
+        self.assertNotEqual(loss, 0)
+        trainFiles = list(Path(self.model.tensorboardPath, "train").glob("*"))
+        self.assertNotEqual(len(trainFiles), 0)
+        evaluationFiles = list(Path(self.model.tensorboardPath, "evaluate").glob("*"))
+        self.assertNotEqual(len(evaluationFiles), 0)
+
+    def test_evaluate(self):
+        self.model.initialize()
+        self.model.evaluate()
+        self.assertEqual(self.model.globalStep, 0)
+        trainFiles = list(Path(self.model.tensorboardPath, "train").glob("*"))
+        self.assertNotEqual(len(trainFiles), 0)
+        evaluationFiles = list(Path(self.model.tensorboardPath, "evaluate").glob("*"))
+        self.assertNotEqual(len(evaluationFiles), 0)
+
+    def test_compute_return_for_episodes(self):
+        self.model.initialize()
+        returns, actions, _ = self.model.compute_return_for_episodes(environment=self.model.evaluationEnvironment)
+        self.assertEqual(returns.shape, (3,))
+        self.assertNotEqual(actions.shape, (3,))
+
+    def test_checkpoint(self):
+        self.model.initialize()
+        self.model.checkpoint()
+        checkpointFiles = list(Path(self.model.checkpointDirectory, "0", "checkpoints").glob("*"))
+        self.assertNotEqual(len(checkpointFiles), 0)
+        policyFiles = list(Path(self.model.checkpointDirectory, "0", "policy").glob("*"))
+        self.assertNotEqual(len(policyFiles), 0)
+
+    def test_train_model(self):
+        self.model.initialize()
+        self.model.train_model(numSteps=3, evaluationFrequency=10)
+        trainFiles = list(Path(self.model.tensorboardPath, "train").glob("*"))
+        self.assertNotEqual(len(trainFiles), 0)
+        evaluationFiles = list(Path(self.model.tensorboardPath, "evaluate").glob("*"))
+        self.assertNotEqual(len(evaluationFiles), 0)
+        self.model.train_model(numSteps=3, evaluationFrequency=1)
+        checkpointFiles = list(Path(self.model.checkpointDirectory, "0", "checkpoints").glob("*"))
+        self.assertNotEqual(len(checkpointFiles), 0)
+        policyFiles = list(Path(self.model.checkpointDirectory, "0", "policy").glob("*"))
+        self.assertNotEqual(len(policyFiles), 0)

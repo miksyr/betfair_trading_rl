@@ -67,18 +67,16 @@ class ReinforcementModel:
         tf.summary.trace_on(graph=True, profiler=False)
         with self.trainingSummaryWriter.as_default():
             tf.summary.scalar(name="Training Loss", data=trainLoss, step=self.globalStep)
-            tf.summary.trace_export(
-                name=f"{self.__class__.__name__}{self.globalStep}",
-                step=self.globalStep,
-                profiler_outdir=get_path(self.tensorboardPath, "trainGraph"),
-            )
+            tf.summary.trace_export(name=f"{self.__class__.__name__}{self.globalStep}", step=self.globalStep)
         self.globalStep += 1
         return trainLoss
 
     def evaluate(self) -> None:
         self.produce_metrics()
 
-    def compute_return_for_episodes(self, environment: BaseEnvironment) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
+    def compute_return_for_episodes(
+        self, environment: Union[BaseEnvironment, TFPyEnvironment]
+    ) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
         allEpisodeReturns = []
         allActions = []
         allMaskedReturns = []
@@ -99,7 +97,7 @@ class ReinforcementModel:
         return tf.concat(allEpisodeReturns, axis=-1), tf.concat(allActions, axis=-1), tf.concat(allMaskedReturns, axis=-1)
 
     def produce_metrics(self) -> None:
-        tf.summary.trace_on(graph=True, profiler=False)
+        tf.summary.trace_on(graph=True, profiler=True)
         with self.evaluationSummaryWriter.as_default():
             episodeReturns, allActions, allMaskedReturns = self.compute_return_for_episodes(
                 environment=self.evaluationEnvironment

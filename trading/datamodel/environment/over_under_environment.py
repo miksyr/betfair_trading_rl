@@ -32,13 +32,6 @@ class OverUnderEnvironment(BaseEnvironment):
     def _get_odds_normalisation_constant(self) -> Union[int, float]:
         return OVER_UNDER_ODDS_NORMALISATION_CONSTANT
 
-    @staticmethod
-    def get_action_mask(observation):
-        actionMask = observation[:, :4] == 0
-        noActionFlags = tf.ones_like(input=actionMask)[:, :1]
-        fullActionMask = tf.concat((noActionFlags, actionMask), axis=-1)
-        return observation, fullActionMask
-
     def _action_processing(self, action: int, offeredOdds: np.array) -> DiscountedReward:
         if action == self.actionsNameToIdMap[self.actions.OVER_BACK]:
             return self._state.place_over_back_bet(odds=offeredOdds[0])
