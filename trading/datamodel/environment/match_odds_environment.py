@@ -1,8 +1,6 @@
 from typing import Optional, Union
 
 import numpy as np
-import tensorflow as tf
-import tf_agents.specs
 
 from trading.datamodel.actions.match_odds_actions import MatchOddsActions
 from trading.datamodel.betting_state.match_odds_betting_state import MatchOddsBettingState

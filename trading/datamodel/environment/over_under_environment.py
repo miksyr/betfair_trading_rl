@@ -1,7 +1,6 @@
 from typing import Optional, Union
 
 import numpy as np
-import tensorflow as tf
 
 from trading.datamodel.actions.over_under_actions import OverUnderActions
 from trading.datamodel.betting_state.over_under_betting_state import OverUnderBettingState
