@@ -2,6 +2,7 @@ from typing import Optional, Union
 
 import numpy as np
 import tensorflow as tf
+import tf_agents.specs
 
 from trading.datamodel.actions.match_odds_actions import MatchOddsActions
 from trading.datamodel.betting_state.match_odds_betting_state import MatchOddsBettingState
@@ -33,8 +34,12 @@ class MatchOddsEnvironment(BaseEnvironment):
         return MATCH_ODDS_NORMALISATION_CONSTANT
 
     @staticmethod
-    def get_action_mask(observation):
+    def get_action_mask(observation: tf_agents.specs.BoundedTensorSpec):
         # required by tf-agents to mask picking the same action twice in a row
+        # only takes the first 6 entries of observation (the betting state) and then outputs the action mask for next step
+        print()
+        print(observation)
+        print()
         actionMask = observation[:, :6] == 0
         noActionFlags = tf.ones_like(input=actionMask)[:, :1]
         fullActionMask = tf.concat((noActionFlags, actionMask), axis=-1)

@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 from tf_agents.agents import TFAgent
 from tf_agents.drivers.driver import Driver
+from tf_agents.environments.tf_py_environment import TFPyEnvironment
 from tf_agents.replay_buffers.replay_buffer import ReplayBuffer
 from tf_agents.policies.policy_saver import PolicySaver
 from tf_agents.utils import common
@@ -17,9 +18,9 @@ class ReinforcementModel:
     def __init__(
         self,
         agent: TFAgent,
-        trainingEnvironment: BaseEnvironment,
+        trainingEnvironment: TFPyEnvironment,
         trainingBatchSize: int,
-        evaluationEnvironment: BaseEnvironment,
+        evaluationEnvironment: TFPyEnvironment,
         evaluationBatchSize: int,
         replayBuffer: ReplayBuffer,
         collectDriver: Driver,
@@ -46,7 +47,9 @@ class ReinforcementModel:
     def _get_training_dataset(self) -> Iterable[tf.Tensor]:
         return iter(
             self.replayBuffer.as_dataset(
-                num_parallel_calls=3, sample_batch_size=self.trainingBatchSize, num_steps=self.agent._n_step_update + 1
+                num_parallel_calls=3,
+                sample_batch_size=self.trainingBatchSize,
+                num_steps=self.agent._n_step_update + 1,
             ).prefetch(3)
         )
 
