@@ -7,7 +7,7 @@ then
   exit 1;
 fi
 
-python ./process_betfair_files.py BETFAIR_FILE_INPUT_DIRECTORY
+python process_betfair_files.py --inputDirectory="$BETFAIR_FILE_INPUT_DIRECTORY"
 
 sudo docker run -d \
     --publish=5432:5432 \
@@ -21,6 +21,6 @@ sudo docker run -d \
 
 sleep 10s
 
-python ./database_build/build_postgres_database.py
+python database_build/build_postgres_database.py
 
-python ./database_build/add_files_to_database.py "$POSTGRES_HISTORICAL_ODDS_DIR"
+python database_build/add_files_to_database.py "$POSTGRES_HISTORICAL_ODDS_DIR"

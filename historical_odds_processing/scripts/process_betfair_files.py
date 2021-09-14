@@ -8,9 +8,15 @@ from typing import Union
 import fire
 
 from historical_odds_processing.datamodel.constants import COUNTRY_CODES_OF_INTEREST
-from historical_odds_processing.scripts.file_processing_steps.merge_all_id_feature_maps import merge_all_mappings
-from historical_odds_processing.scripts.file_processing_steps.process_bz2_odds_files import process_all_bz2_files
-from historical_odds_processing.scripts.file_processing_steps.remap_all_id_features import remap_all_id_features
+from historical_odds_processing.scripts.file_processing_steps.merge_all_id_feature_maps import (
+    merge_all_mappings,
+)
+from historical_odds_processing.scripts.file_processing_steps.process_bz2_odds_files import (
+    process_all_bz2_files,
+)
+from historical_odds_processing.scripts.file_processing_steps.remap_all_id_features import (
+    remap_all_id_features,
+)
 from multiprocessing import cpu_count
 
 

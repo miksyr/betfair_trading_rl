@@ -1,7 +1,8 @@
-import fire
-import re
-
 from pathlib import Path
+import re
+from typing import List, Tuple, Optional, Union
+
+import fire
 from tqdm.auto import tqdm
 
 from historical_odds_processing.datamodel.data_store_schema.historical_trading_schema import LastTradedPrice
@@ -11,12 +12,12 @@ from historical_odds_processing.datamodel.data_store_schema.historical_trading_s
 from historical_odds_processing.store.db_creation.bz2_processor import BZ2Processor
 from historical_odds_processing.store.db_creation.csv_output_handler import CSVOutputHandler
 from historical_odds_processing.store.db_creation.output_filenames import OutputFilenames
-from historical_odds_processing.utils.batching import get_data_batches
-from historical_odds_processing.utils.batching import run_multiprocessing
-from historical_odds_processing.utils.paths import get_path
+from utils.batching import get_data_batches
+from utils.batching import run_multiprocessing
+from utils.paths import get_path
 
 
-def process_bz2_file(args):
+def process_bz2_file(args: Tuple[List[Union[str, Path]], List[str], Union[str, Path], int]) -> None:
     filepathBatch, validCountryCodes, outputPath, chunkId = args
     outputPath = get_path(outputPath, chunkId)
     marketInfoHandler = CSVOutputHandler(
@@ -43,7 +44,12 @@ def process_bz2_file(args):
     fileProcessor.process_files(outputDirectory=outputPath)
 
 
-def process_all_bz2_files(inputDirectory, outputDirectory, validCountryCodes, numThreads=None):
+def process_all_bz2_files(
+    inputDirectory: Union[str, Path],
+    outputDirectory: Union[str, Path],
+    validCountryCodes: List[str],
+    numThreads: Optional[int] = None,
+) -> None:
     for yearDir in tqdm(list(Path(inputDirectory).glob("*")), position=0, desc="looping through years"):
         for monthDir in tqdm(list(yearDir.glob("*")), position=1, desc="looping through months"):
             outputPath = get_path(outputDirectory, yearDir.parts[-1], monthDir.parts[-1])

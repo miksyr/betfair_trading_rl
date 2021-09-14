@@ -1,11 +1,13 @@
-from typing import Union
+from typing import Optional, Union
 
 import pandas as pd
 from easy_postgres_engine import PostgresEngine
 
 
 class PostgresQueryEngine(PostgresEngine):
-    def __init__(self, user, password, databaseName="betfair_odds_data", host="localhost", port=5432):
+    def __init__(
+        self, user: str, password: str, databaseName: str = "betfair_odds_data", host: str = "localhost", port: int = 5432
+    ):
         super().__init__(user=user, password=password, databaseName=databaseName, host=host, port=port)
 
     def get_betting_type_index(self, bettingTypeName: str) -> Union[int, None]:
@@ -294,8 +296,8 @@ class PostgresQueryEngine(PostgresEngine):
                 f"No last traded price found for runnerId {betfairRunnerTableId}, market: {betfairMarketId} in tbl_betfair_last_traded_price"
             )
 
-    def get_odds_time_series(self, betfairMarketId: str, betfairRunnerTableId: int = None) -> pd.DataFrame:
-        runnerTableIdClause = "AND betfair_runner_table_id = %(betfairRunnerTableId)s"
+    def get_odds_time_series(self, betfairMarketId: str, betfairRunnerTableId: Optional[int] = None) -> pd.DataFrame:
+        runnerTableIdClause = "AND runner_betfair_id = %(betfairRunnerTableId)s"
         parameters = {"betfairMarketId": betfairMarketId}
         if betfairRunnerTableId is not None:
             parameters.update({"betfairRunnerTableId": int(betfairRunnerTableId)})

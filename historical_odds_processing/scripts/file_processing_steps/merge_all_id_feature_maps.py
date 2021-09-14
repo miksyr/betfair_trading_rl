@@ -6,7 +6,7 @@ import fire
 from tqdm.auto import tqdm
 
 from historical_odds_processing.store.db_creation.output_filenames import OutputFilenames
-from historical_odds_processing.utils.batching import run_multiprocessing
+from utils.batching import run_multiprocessing
 
 
 def merge_mapping(args: Tuple[Union[str, Path], str]) -> None:

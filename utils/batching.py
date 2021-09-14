@@ -4,7 +4,11 @@ from multiprocessing import Pool
 from typing import Any, Callable, List, Optional, Sequence
 
 
-def run_multiprocessing(functionToProcess: Callable, parameterList: Sequence[Any], threads: Optional[int] = None) -> Any:
+def run_multiprocessing(
+    functionToProcess: Callable,
+    parameterList: Sequence[Any],
+    threads: Optional[int] = None,
+) -> Any:
     pool = Pool(cpu_count() if not threads else threads)
     results = pool.map(functionToProcess, parameterList)
     pool.close()

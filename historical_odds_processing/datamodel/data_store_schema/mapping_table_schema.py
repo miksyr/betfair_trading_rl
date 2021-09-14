@@ -1,5 +1,4 @@
-from historical_odds_processing.datamodel.data_store_schema.database_components import Column
-from historical_odds_processing.datamodel.data_store_schema.database_components import Table
+from historical_odds_processing.datamodel.data_store_schema.database_components import Column, Table
 from historical_odds_processing.store.db_creation.output_filenames import OutputFilenames
 
 
